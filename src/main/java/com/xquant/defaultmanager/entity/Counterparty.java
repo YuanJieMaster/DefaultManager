@@ -17,7 +17,7 @@ public class Counterparty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "code", nullable = false)
     private String counterpartyCode;
 
     @Column(nullable = false)
