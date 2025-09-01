@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Service</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #333; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 10px 0; }
+        a {
+            color: #007bff;
+            text-decoration: none;
+            padding: 8px 12px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>API 服务运行中！</h1>
+    <p>服务器时间: <span id="time"></span></p>
+    <h2>可用API端点:</h2>
+    <ul>
+        <li><a href="/api/counterparties">GET /api/counterparties</a></li>
+        <li><a href="/api/counterparties/1">GET /api/counterparties/1</a></li>
+    </ul>
+
+    <h2>测试命令:</h2>
+    <pre style="background: #f4f4f4; padding: 15px; border-radius: 5px;">
+curl -u user:123 http://localhost:8082/api/counterparties/1
+        </pre>
+</div>
+<script>
+    document.getElementById('time').textContent = new Date().toLocaleString('zh-CN');
+</script>
+</body>
+</html>
