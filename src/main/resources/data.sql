@@ -71,7 +71,7 @@ VALUES (
            'user1@xquant.com',
            'John',
            'Doe',
-           'ROLE_USER',
+           'RISK_CONTROL',
            true,
            CURRENT_TIMESTAMP
        );

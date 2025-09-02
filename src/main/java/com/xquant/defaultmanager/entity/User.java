@@ -21,7 +21,7 @@ public class User {
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.ROLE_USER;
+    private Role role = Role.RISK_CONTROL;
 
     private boolean enabled = true;
     private LocalDateTime createdAt;
