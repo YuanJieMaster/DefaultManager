@@ -58,7 +58,7 @@ VALUES (
            'admin@xquant.com',
            'System',
            'Administrator',
-           'ROLE_ADMIN',
+           'ADMIN',
            true,
            CURRENT_TIMESTAMP
        );
