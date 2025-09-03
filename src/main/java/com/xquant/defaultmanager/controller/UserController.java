@@ -1,5 +1,7 @@
 package com.xquant.defaultmanager.controller;
 
+import com.xquant.defaultmanager.dto.UserDTO;
+import com.xquant.defaultmanager.dto.UserResponseDTO;
 import com.xquant.defaultmanager.entity.User;
 import com.xquant.defaultmanager.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,9 +11,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @Tag(name = "用户管理", description = "用户相关的CRUD操作和认证管理")
 public class UserController {
 
@@ -23,30 +27,46 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "获取所有用户", description = "返回系统中所有用户的完整列表")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserResponseDTO> getAllUsers() {
+        return userService.getAllUsers().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "根据ID获取用户", description = "通过用户ID查询特定用户的详细信息")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
-        return userService.getUserById(id)
-                .map(ResponseEntity::ok)
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long id) {
+        Optional<User> user = userService.getUserById(id);
+        return user.map(u -> ResponseEntity.ok(toResponse(u)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     @Operation(summary = "创建新用户", description = "创建一个新的用户账号，需要提供用户基本信息")
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public UserResponseDTO createUser(@RequestBody UserDTO dto) {
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setPassword(dto.getPassword());
+        user.setEmail(dto.getEmail());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        if (dto.getRole() != null) user.setRole(dto.getRole());
+        if (dto.getEnabled() != null) user.setEnabled(dto.getEnabled());
+        User created = userService.createUser(user);
+        return toResponse(created);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新用户信息", description = "根据用户ID更新现有用户的信息")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO dto) {
         try {
+            User user = new User();
+            user.setEmail(dto.getEmail());
+            user.setFirstName(dto.getFirstName());
+            user.setLastName(dto.getLastName());
+            user.setPassword(dto.getPassword());
+            if (dto.getRole() != null) user.setRole(dto.getRole());
+            if (dto.getEnabled() != null) user.setEnabled(dto.getEnabled());
             User updatedUser = userService.updateUser(id, user);
-            return ResponseEntity.ok(updatedUser);
+            return ResponseEntity.ok(toResponse(updatedUser));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -61,19 +81,30 @@ public class UserController {
 
     @GetMapping("/me")
     @Operation(summary = "获取当前用户信息", description = "获取当前已认证登录用户的基本信息")
-    public ResponseEntity<User> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<UserResponseDTO> getCurrentUser(Authentication authentication) {
         return userService.getUserByUsername(authentication.getName())
-                .map(ResponseEntity::ok)
+                .map(u -> ResponseEntity.ok(toResponse(u)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/register")
     @Operation(summary = "用户注册", description = "新用户注册接口，检查用户名是否已存在后创建账号")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        if (userService.usernameExists(user.getUsername())) {
+    public ResponseEntity<UserResponseDTO> registerUser(@RequestBody UserDTO dto) {
+        if (userService.usernameExists(dto.getUsername())) {
             return ResponseEntity.badRequest().build();
         }
-        User createdUser = userService.createUser(user);
-        return ResponseEntity.ok(createdUser);
+        return ResponseEntity.ok(createUser(dto));
+    }
+
+    private UserResponseDTO toResponse(User user) {
+        UserResponseDTO r = new UserResponseDTO();
+        r.setId(user.getId());
+        r.setUsername(user.getUsername());
+        r.setEmail(user.getEmail());
+        r.setFirstName(user.getFirstName());
+        r.setLastName(user.getLastName());
+        r.setRole(user.getRole());
+        r.setEnabled(user.isEnabled());
+        return r;
     }
 }

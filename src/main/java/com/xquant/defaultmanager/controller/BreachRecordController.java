@@ -16,7 +16,7 @@ import java.util.List;
  * 提供违约记录的创建、查询、审核和删除等操作
  */
 @RestController
-@RequestMapping("/api/breach-records")
+@RequestMapping("/breach-records")
 @RequiredArgsConstructor
 public class BreachRecordController {
     

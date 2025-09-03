@@ -1,12 +1,12 @@
--- 创建初始普通用户 (密码: user123)
+-- 创建初始超级管理员用户 (密码: user123)
 INSERT INTO users (username, password, email, first_name, last_name, role, enabled, created_at)
 VALUES (
-           'user1',
+           'admin',
            '$2a$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', -- 这是 "user123" 的 BCrypt 哈希
-           'user1@xquant.com',
-           'John',
-           'Doe',
-           'RISK_CONTROL',
+           'admin@xquant.com',
+           'Super',
+           'Admin',
+           'ADMIN',
            true,
            CURRENT_TIMESTAMP
        );

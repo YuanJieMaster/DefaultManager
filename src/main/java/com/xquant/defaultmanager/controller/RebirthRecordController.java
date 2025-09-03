@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 重生记录管理
+ * 重生管理
  * 提供客户重生申请的创建、查询、审核和删除等操作
  */
 @RestController
-@RequestMapping("/api/rebirth-records")
+@RequestMapping("/rebirth-records")
 @RequiredArgsConstructor
 public class RebirthRecordController {
     

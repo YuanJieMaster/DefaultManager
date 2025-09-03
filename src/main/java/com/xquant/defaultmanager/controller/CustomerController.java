@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/customers")
+@RequestMapping("/customers")
 @Tag(name = "客户管理", description = "客户相关的CRUD操作")
 @CrossOrigin(origins = "*")
 public class CustomerController {
