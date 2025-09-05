@@ -130,14 +130,24 @@ const router = createRouter({
   routes
 })
 
+// 路由全局前置守卫 - 处理认证和权限控制
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
+  
+  // 处理公开路由（无需登录即可访问）
   if (to.meta.public) {
-    // 已登录访问登录页，跳转首页
+    // 已登录用户访问登录页时，自动重定向到仪表盘
     if (to.path === '/login' && auth.isAuthenticated) return next('/dashboard')
     return next()
   }
-  if (!auth.isAuthenticated) return next({ path: '/login', query: { redirect: to.fullPath } })
+  
+  // 处理需要认证的路由
+  if (!auth.isAuthenticated) {
+    // 未登录用户访问受保护路由时，重定向到登录页，并保存当前路由用于登录后跳转
+    return next({ path: '/login', query: { redirect: to.fullPath } })
+  }
+  
+  // 已登录用户访问受保护路由，允许通过
   next()
 })
 

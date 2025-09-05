@@ -1,4 +1,3 @@
-<script src="router/index.ts"></script>
 <template>
   <div id="app">
     <template v-if="$route.path === '/login'">
@@ -9,7 +8,7 @@
         <el-aside width="250px" class="sidebar">
           <div class="logo"><h2>违约管理系统</h2></div>
           <el-menu :default-active="$route.path" class="sidebar-menu" router background-color="#304156" text-color="#bfcbd9" active-text-color="#409EFF">
-            <el-menu-item index="/dashboard"><el-icon><DataBoard /></el-icon><span>仪表盘</span></el-menu-item>
+            <el-menu-item router index="/dashboard"><el-icon><DataBoard /></el-icon><span>仪表盘</span></el-menu-item>
             <el-sub-menu index="/customer">
               <template #title><el-icon><User /></el-icon><span>客户管理</span></template>
               <el-menu-item index="/customer/list">客户列表</el-menu-item>
