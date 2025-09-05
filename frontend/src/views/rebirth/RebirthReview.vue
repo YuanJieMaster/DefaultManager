@@ -358,32 +358,30 @@ defineExpose({
   industryMap
 })
 
-// 模拟获取重生审核数据
+// 获取重生审核数据
 const fetchRebirthReviews = async () => {
   loading.value = true
   try {
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 800))
+    // 调用真实API获取待审核的重生记录
+    const response = await rebirthApi.getRebirthRecordsByStatus('PENDING')
     
-    // 在实际项目中，这里应该调用API获取数据
-    // const response = await rebirthApi.getRebirthReviews()
-    
-    // 使用模拟数据
-    const mockData: RebirthReviewResponseDTO[] = [
-      { id: 62, customerId: 1, customerName: '北京星辰科技有限公司', industry: 'TECH', reason: '客户已完成所有逾期款项的支付，并提交了详细的整改计划', breachRecordCount: 2, isUrgent: false, applyTime: '2023-07-15 10:20:35', rectificationMeasures: '已制定详细的财务管理流程', expectedEffects: '确保今后按时支付所有款项', attachmentCount: 2 },
-      { id: 61, customerId: 6, customerName: '南京智慧城市建设有限公司', industry: 'TECH', reason: '已建立完善的技术支持响应机制，确保及时解决问题', breachRecordCount: 1, isUrgent: true, applyTime: '2023-07-15 09:10:22', rectificationMeasures: '建立7×24小时技术支持热线', expectedEffects: '提高客户满意度和问题解决效率', attachmentCount: 1 },
-      { id: 60, customerId: 8, customerName: '武汉长江环保科技有限公司', industry: 'ENVIRONMENT', reason: '环保设备已升级改造，完全符合国家规定标准', breachRecordCount: 1, isUrgent: false, applyTime: '2023-07-14 16:30:45', rectificationMeasures: '对所有环保设备进行全面升级', expectedEffects: '完全符合国家环保标准要求', attachmentCount: 3 },
-      { id: 59, customerId: 12, customerName: '重庆山城食品有限公司', industry: 'FOOD', reason: '已完成食品安全管理体系认证，确保产品质量', breachRecordCount: 1, isUrgent: true, applyTime: '2023-07-14 14:20:18', rectificationMeasures: '引入ISO22000食品安全管理体系', expectedEffects: '提升产品质量和市场竞争力', attachmentCount: 2 },
-      { id: 58, customerId: 13, customerName: '天津渤海航运有限公司', industry: 'LOGISTICS', reason: '船舶安全检查已全部通过，船员培训已完成', breachRecordCount: 1, isUrgent: false, applyTime: '2023-07-13 11:50:32', rectificationMeasures: '完成所有船舶安全检查和船员培训', expectedEffects: '确保航行安全和货物运输质量', attachmentCount: 4 },
-      { id: 57, customerId: 14, customerName: '西安古都旅游发展有限公司', industry: 'TOURISM', reason: '已完成服务质量提升计划，客户满意度显著提高', breachRecordCount: 1, isUrgent: false, applyTime: '2023-07-13 09:40:25', rectificationMeasures: '实施服务质量提升专项计划', expectedEffects: '提高客户满意度和回头率', attachmentCount: 1 },
-      { id: 56, customerId: 15, customerName: '青岛蓝海医疗器材有限公司', industry: 'MEDICAL', reason: '医疗器材已通过质量认证，完善了售后服务体系', breachRecordCount: 1, isUrgent: true, applyTime: '2023-07-12 15:30:18', rectificationMeasures: '通过ISO13485医疗器械质量管理体系认证', expectedEffects: '提升产品质量和市场竞争力', attachmentCount: 3 },
-      { id: 55, customerId: 16, customerName: '厦门海峡贸易有限公司', industry: 'TRADE', reason: '已解决所有合同纠纷，与供应商建立了长期合作关系', breachRecordCount: 1, isUrgent: false, applyTime: '2023-07-12 10:20:45', rectificationMeasures: '解决历史合同纠纷，建立新的供应商管理体系', expectedEffects: '确保供应链稳定和贸易顺利进行', attachmentCount: 2 },
-      { id: 54, customerId: 17, customerName: '长沙湘江文化传播有限公司', industry: 'CULTURE', reason: '已完成项目进度追赶，确保后续按时交付', breachRecordCount: 1, isUrgent: false, applyTime: '2023-07-11 16:40:32', rectificationMeasures: '增加项目资源投入，调整项目进度计划', expectedEffects: '确保项目按时按质交付', attachmentCount: 1 },
-      { id: 53, customerId: 18, customerName: '大连北方重工机械有限公司', industry: 'MANUFACTURING', reason: '生产设备已完成升级改造，提高了生产效率和产品质量', breachRecordCount: 1, isUrgent: true, applyTime: '2023-07-11 14:10:18', rectificationMeasures: '对主要生产设备进行全面升级改造', expectedEffects: '提高生产效率和产品质量', attachmentCount: 4 }
-    ]
+    // 转换数据格式以适应前端表格
+    const formattedData = response.map(record => ({
+      id: record.id,
+      customerId: record.customerId,
+      customerName: record.customerName,
+      industry: 'TECH', // 暂时使用默认值，实际项目中应该从客户信息获取
+      reason: record.reason,
+      breachRecordCount: 1, // 暂时使用默认值，实际项目中应该调用API获取
+      isUrgent: false, // 暂时使用默认值，实际项目中应该根据申请时间判断
+      applyTime: record.createTime, // 假设后端返回的createTime格式已经符合前端要求
+      rectificationMeasures: record.rectificationMeasures || '',
+      expectedEffects: record.expectedEffects || '',
+      attachmentCount: 0 // 暂时使用默认值，实际项目中应该调用API获取
+    }))
     
     // 根据筛选条件过滤数据
-    let filteredData = [...mockData]
+    let filteredData = [...formattedData]
     
     if (searchKeyword.value) {
       const keyword = searchKeyword.value.toLowerCase()
@@ -544,21 +542,15 @@ const rejectReview = (reviewId: number) => {
 // 提交审核操作
 const submitReviewAction = async (reviewId: number, status: 'APPROVED' | 'REJECTED', comment: string) => {
   try {
-    // 模拟API调用
     const loadingInstance = ElLoading.service({
       lock: true,
       text: status === 'APPROVED' ? '正在处理通过申请...' : '正在处理拒绝申请...',
       background: 'rgba(0, 0, 0, 0.7)'
     })
     
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // 调用实际的API提交审核结果
+    await rebirthApi.reviewRebirthRecord(reviewId, status, 1) // 实际项目中应从登录状态获取当前用户ID
     loadingInstance.close()
-    
-    // 在实际项目中，这里应该调用API提交审核结果
-    // await rebirthApi.reviewRebirthApplication(reviewId, {
-    //   status: status,
-    //   comment: comment
-    // })
     
     ElMessage.success(status === 'APPROVED' ? '申请已通过' : '申请已拒绝')
     fetchRebirthReviews()
@@ -607,14 +599,18 @@ const batchApprove = () => {
     }
   ).then(async () => {
     try {
-      // 模拟批量通过操作
       const loadingInstance = ElLoading.service({
         lock: true,
         text: `正在批量处理 ${selectedRows.value.length} 个申请...`,
         background: 'rgba(0, 0, 0, 0.7)'
       })
       
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // 遍历选中的记录，逐一调用审核API
+      const promises = selectedRows.value.map(row => 
+        rebirthApi.reviewRebirthRecord(row.id, 'APPROVED', 1) // 实际项目中应从登录状态获取当前用户ID
+      )
+      
+      await Promise.all(promises)
       loadingInstance.close()
       
       ElMessage.success(`成功通过 ${selectedRows.value.length} 个申请`)
@@ -622,6 +618,7 @@ const batchApprove = () => {
       fetchRebirthReviews()
     } catch (error) {
       ElMessage.error('批量通过失败')
+      console.error('批量通过失败:', error)
     }
   }).catch(() => {
     // 用户取消操作
@@ -654,14 +651,18 @@ const batchReject = () => {
     }
   ).then(async ({ value }) => {
     try {
-      // 模拟批量拒绝操作
       const loadingInstance = ElLoading.service({
         lock: true,
         text: `正在批量拒绝 ${selectedRows.value.length} 个申请...`,
         background: 'rgba(0, 0, 0, 0.7)'
       })
       
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // 遍历选中的记录，逐一调用审核API
+      const promises = selectedRows.value.map(row => 
+        rebirthApi.reviewRebirthRecord(row.id, 'REJECTED', 1) // 实际项目中应从登录状态获取当前用户ID
+      )
+      
+      await Promise.all(promises)
       loadingInstance.close()
       
       ElMessage.success(`成功拒绝 ${selectedRows.value.length} 个申请`)
@@ -669,6 +670,7 @@ const batchReject = () => {
       fetchRebirthReviews()
     } catch (error) {
       ElMessage.error('批量拒绝失败')
+      console.error('批量拒绝失败:', error)
     }
   }).catch(() => {
     // 用户取消操作

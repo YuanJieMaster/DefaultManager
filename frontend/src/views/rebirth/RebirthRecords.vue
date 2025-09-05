@@ -332,28 +332,20 @@ const hasSelection = computed(() => {
 const fetchRebirthRecords = async () => {
   loading.value = true
   try {
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
-    // 在实际项目中，这里应该调用API获取数据
-    // const response = await rebirthApi.getRebirthRecords(statusFilter.value as any || undefined)
-    
-    // 使用模拟数据
-    const mockData: RebirthRecordResponseDTO[] = [
-      { id: 52, customerId: 1, customerName: '北京星辰科技有限公司', reason: '客户已完成所有逾期款项的支付，并提交了详细的整改计划', breachRecordCount: 2, status: 'PENDING', applyTime: '2023-07-15 10:20:35' },
-      { id: 51, customerId: 3, customerName: '广州恒远物流有限公司', reason: '客户已对货物损坏进行了全额赔偿，并升级了物流保障措施', breachRecordCount: 1, status: 'APPROVED', reviewTime: '2023-07-12 16:30:18', applyTime: '2023-07-10 09:45:22' },
-      { id: 50, customerId: 2, customerName: '上海远景贸易有限公司', reason: '客户表示因财务系统升级导致付款延迟，承诺今后不再发生类似问题', breachRecordCount: 1, status: 'REJECTED', reviewTime: '2023-07-08 14:20:55', applyTime: '2023-07-05 11:30:40' },
-      { id: 49, customerId: 5, customerName: '杭州未来金融服务有限公司', reason: '公司已完成内部审计整改，所有财务报表数据准确无误', breachRecordCount: 1, status: 'APPROVED', reviewTime: '2023-07-01 10:15:30', applyTime: '2023-06-25 15:20:18' },
-      { id: 48, customerId: 1, customerName: '北京星辰科技有限公司', reason: '项目已按约定完成交付，并通过了验收测试', breachRecordCount: 1, status: 'APPROVED', reviewTime: '2023-06-20 16:40:25', applyTime: '2023-06-15 09:35:42' },
-      { id: 47, customerId: 6, customerName: '南京智慧城市建设有限公司', reason: '已建立完善的技术支持响应机制，确保及时解决问题', breachRecordCount: 1, status: 'PENDING', applyTime: '2023-06-12 14:50:10' },
-      { id: 46, customerId: 7, customerName: '成都华西医疗科技有限公司', reason: '医疗设备已全部交付，并提供了额外的技术培训支持', breachRecordCount: 1, status: 'APPROVED', reviewTime: '2023-06-05 11:25:40', applyTime: '2023-05-30 10:15:32' },
-      { id: 45, customerId: 8, customerName: '武汉长江环保科技有限公司', reason: '环保设备已升级改造，完全符合国家规定标准', breachRecordCount: 1, status: 'PENDING', applyTime: '2023-05-25 16:30:45' },
-      { id: 44, customerId: 4, customerName: '深圳科技创新有限公司', reason: '技术服务团队已扩充，服务质量显著提升', breachRecordCount: 1, status: 'APPROVED', reviewTime: '2023-05-20 14:50:32', applyTime: '2023-05-15 09:20:18' },
-      { id: 43, customerId: 2, customerName: '上海远景贸易有限公司', reason: '产品质量管控体系已升级，确保所有产品符合合同标准', breachRecordCount: 1, status: 'REJECTED', reviewTime: '2023-05-10 10:45:20', applyTime: '2023-05-05 15:30:42' }
-    ]
+    // 根据状态筛选获取重生记录
+    let response
+    if (statusFilter.value) {
+      response = await rebirthApi.getRebirthRecordsByStatus(statusFilter.value as 'PENDING' | 'APPROVED' | 'REJECTED')
+    } else {
+      // 如果没有状态筛选，获取所有记录（通过分别获取不同状态的记录并合并）
+      const pendingRecords = await rebirthApi.getRebirthRecordsByStatus('PENDING')
+      const approvedRecords = await rebirthApi.getRebirthRecordsByStatus('APPROVED')
+      const rejectedRecords = await rebirthApi.getRebirthRecordsByStatus('REJECTED')
+      response = [...pendingRecords, ...approvedRecords, ...rejectedRecords]
+    }
     
     // 根据筛选条件过滤数据
-    let filteredData = [...mockData]
+    let filteredData = [...response]
     
     if (searchKeyword.value) {
       const keyword = searchKeyword.value.toLowerCase()
@@ -361,10 +353,6 @@ const fetchRebirthRecords = async () => {
         record.customerName.toLowerCase().includes(keyword) || 
         record.reason.toLowerCase().includes(keyword)
       )
-    }
-    
-    if (statusFilter.value) {
-      filteredData = filteredData.filter(record => record.status === statusFilter.value)
     }
     
     if (dateRange.value) {
@@ -461,14 +449,11 @@ const submitReview = async () => {
   
   submitting.value = true
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // 获取当前用户ID（实际项目中应该从登录状态中获取）
+    const reviewerId = 1; // 这里使用模拟的审核人ID
     
-    // 在实际项目中，这里应该调用API提交审核结果
-    // await rebirthApi.reviewRebirthRecord(currentRecord.id, {
-    //   status: reviewForm.status,
-    //   comment: reviewForm.comment
-    // })
+    // 调用API提交审核结果
+    await rebirthApi.reviewRebirthRecord(currentRecord.value.id, reviewForm.status, reviewerId)
     
     dialogVisible.value = false
     ElMessage.success('审核成功')
@@ -494,20 +479,27 @@ const deleteRecord = (recordId: number) => {
     }
   ).then(async () => {
     try {
-      // 模拟删除操作
+      // 显示加载状态
       const loadingInstance = ElLoading.service({
         lock: true,
         text: '正在删除记录，请稍候...',
         background: 'rgba(0, 0, 0, 0.7)'
       })
       
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // 调用API删除记录
+      await rebirthApi.deleteRebirthRecord(recordId)
+      
+      // 关闭加载状态
       loadingInstance.close()
       
+      // 显示成功消息
       ElMessage.success('记录删除成功')
+      
+      // 刷新数据
       fetchRebirthRecords()
     } catch (error) {
-      ElMessage.error('记录删除失败')
+      ElMessage.error('删除记录失败')
+      console.error('删除记录失败:', error)
     }
   }).catch(() => {
     // 用户取消删除
@@ -535,21 +527,31 @@ const batchDeleteRecords = () => {
     }
   ).then(async () => {
     try {
-      // 模拟批量删除操作
+      // 显示加载状态
       const loadingInstance = ElLoading.service({
         lock: true,
         text: `正在删除 ${selectedRecords.value.length} 条记录，请稍候...`,
         background: 'rgba(0, 0, 0, 0.7)'
       })
       
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // 批量删除记录（由于API不支持批量删除，这里逐个删除）
+      const deletePromises = selectedRecords.value.map(record => 
+        rebirthApi.deleteRebirthRecord(record.id)
+      )
+      await Promise.all(deletePromises)
+      
+      // 关闭加载状态
       loadingInstance.close()
       
+      // 显示成功消息
       ElMessage.success(`成功删除 ${selectedRecords.value.length} 条记录`)
+      
+      // 清空选择并刷新数据
       selectedRecords.value = []
       fetchRebirthRecords()
     } catch (error) {
       ElMessage.error('批量删除失败')
+      console.error('批量删除记录失败:', error)
     }
   }).catch(() => {
     // 用户取消删除

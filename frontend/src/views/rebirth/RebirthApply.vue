@@ -311,23 +311,19 @@ const searchCustomers = async (keyword: string) => {
 
   customerLoading.value = true
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // 模拟搜索结果
-    const mockCustomers: { id: number; name: string }[] = [
-      { id: 1, name: '北京星辰科技有限公司' },
-      { id: 2, name: '上海远景贸易有限公司' },
-      { id: 3, name: '广州恒远物流有限公司' },
-      { id: 4, name: '深圳科技创新有限公司' },
-      { id: 5, name: '杭州未来金融服务有限公司' }
-    ]
-    
-    customerOptions.value = mockCustomers.filter(customer => 
-      customer.name.includes(keyword)
+    // 调用API获取所有客户，然后在前端进行模糊过滤
+    const allCustomers = await customerApi.getAllCustomers()
+    // 在前端进行模糊搜索过滤
+    const filteredCustomers = allCustomers.filter((customer: CustomerResponseDTO) => 
+      customer.name.toLowerCase().includes(keyword.toLowerCase())
     )
+    customerOptions.value = filteredCustomers.map((customer: CustomerResponseDTO) => ({
+      id: customer.id,
+      name: customer.name
+    }))
   } catch (error) {
     ElMessage.error('搜索客户失败')
+    console.error('搜索客户失败:', error)
   } finally {
     customerLoading.value = false
   }
@@ -343,25 +339,26 @@ const onCustomerChange = async (customerId: number) => {
   }
 
   try {
-    // 模拟获取客户详情
-    await new Promise(resolve => setTimeout(resolve, 300))
-    
-    // 模拟客户详情
-    const mockCustomer: Partial<CustomerResponseDTO> = {
-      id: customerId,
-      name: customerOptions.value.find(c => c.id === customerId)?.name || '',
-      phone: '13800138000',
-      industry: '科技',
-      status: 'BLOCKED'
+    // 检查客户是否可以申请重生
+    const canRebirth = await rebirthApi.canCustomerRebirth(customerId)
+    if (!canRebirth) {
+      ElMessage.warning('该客户当前不能申请重生，请检查客户状态')
+      formData.customerId = null
+      selectedCustomer.value = null
+      breachRecordOptions.value = []
+      return
     }
-    
-    selectedCustomer.value = mockCustomer
-    formData.customerName = mockCustomer.name
+
+    // 调用API获取客户详情
+    const customerDetail = await customerApi.getCustomerById(customerId)
+    selectedCustomer.value = customerDetail
+    formData.customerName = customerDetail.name
     
     // 获取客户相关的违约记录
     await loadCustomerBreachRecords(customerId)
   } catch (error) {
     ElMessage.error('获取客户信息失败')
+    console.error('获取客户信息失败:', error)
   }
 }
 
@@ -369,19 +366,11 @@ const onCustomerChange = async (customerId: number) => {
 const loadCustomerBreachRecords = async (customerId: number) => {
   breachRecordsLoading.value = true
   try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // 模拟违约记录数据
-    const mockBreachRecords: BreachRecordResponseDTO[] = [
-      { id: 102, customerId: customerId, reason: '未按时还款超过30天，经多次催促仍未履行合同义务', severity: 'HIGH', status: 'APPROVED', createTime: '2023-07-12 14:30:22' },
-      { id: 101, customerId: customerId, reason: '违反合同约定的付款条款，延迟付款达到20天', severity: 'MEDIUM', status: 'APPROVED', createTime: '2023-07-08 09:15:36' },
-      { id: 97, customerId: customerId, reason: '项目交付延迟，影响我方业务进度', severity: 'LOW', status: 'PENDING', createTime: '2023-06-10 11:45:15' }
-    ]
-    
-    breachRecordOptions.value = mockBreachRecords
+    // 调用API获取客户违约记录
+    breachRecordOptions.value = await breachApi.getBreachRecordsByCustomerId(customerId)
   } catch (error) {
     ElMessage.error('获取违约记录失败')
+    console.error('获取违约记录失败:', error)
   } finally {
     breachRecordsLoading.value = false
   }
@@ -507,11 +496,16 @@ const submitForm = async () => {
     submitting.value = true
     
     try {
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // 构建提交数据
+      const submitData = {
+        customerId: formData.customerId,
+        breachId: formData.breachRecordIds[0], // 后端目前只支持单个违约记录
+        reason: formData.reason,
+        applicantId: 1 // 实际项目中应从登录状态获取当前用户ID
+      }
       
-      // 在实际项目中，这里应该调用API提交申请
-      // await rebirthApi.createRebirthApply(formData)
+      // 调用API提交申请
+      await rebirthApi.createRebirthRecord(submitData)
       
       ElMessage.success('重生申请提交成功')
       
