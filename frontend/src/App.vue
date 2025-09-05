@@ -32,6 +32,10 @@
               <el-menu-item index="/statistics/industry">行业分析</el-menu-item>
               <el-menu-item index="/statistics/region">区域分析</el-menu-item>
             </el-sub-menu>
+            <el-sub-menu index="/user">
+              <template #title><el-icon><UserFilled /></el-icon><span>用户管理</span></template>
+              <el-menu-item index="/user/list">用户列表</el-menu-item>
+            </el-sub-menu>
             <el-menu-item index="/system"><el-icon><Setting /></el-icon><span>系统设置</span></el-menu-item>
           </el-menu>
         </el-aside>

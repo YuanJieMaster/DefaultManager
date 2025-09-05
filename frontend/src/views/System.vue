@@ -310,7 +310,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
-import { Upload, Loading, Delete, Refresh, Monitor, Server, Database, Clock, User, Cpu } from '@element-plus/icons-vue'
+import { Upload, Loading, Delete, Refresh, Monitor, Clock, User, Cpu } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/store/auth'
 
 const auth = useAuthStore()
@@ -1280,9 +1280,9 @@ onMounted(() => {
 }
 
 /* 深色模式适配 */
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   .system-container {
-    background-color: #1a1a1a;
+    background-color: aliceblue;
   }
   
   .page-title {

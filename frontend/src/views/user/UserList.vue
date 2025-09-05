@@ -263,8 +263,8 @@ const getUsers = async () => {
 
     const response = await request.get('/users', { params })
     // users.value = response.data.content || generateMockUsers()
-    users.value = response.data
-    totalElements.value = response.data.totalElements || 50
+    users.value = response
+    // totalElements.value = response.data.totalElements || 50
   } catch (error) {
     console.error('获取用户列表失败:', error)
     // 如果API调用失败，使用模拟数据
@@ -388,11 +388,11 @@ const handleSubmit = async () => {
     
     if (userForm.id) {
       // 编辑用户
-      await request.put(`/api/users/${userForm.id}`, userData)
+      await request.put(`/users/${userForm.id}`, userData)
       ElMessage.success('用户更新成功')
     } else {
       // 添加用户
-      await request.post('/api/users', userData)
+      await request.post('/users', userData)
       ElMessage.success('用户添加成功')
     }
     

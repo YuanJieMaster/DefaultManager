@@ -210,11 +210,54 @@ onMounted(() => {
 const fetchBreachedCustomers = async () => {
   loading.value = true
   try {
-    // 在实际项目中，这里应该调用API获取数据
-    // 由于没有真实API，使用模拟数据
-    const mockData: BreachedCustomer[] = generateMockBreachedCustomers()
-    breachedCustomers.value = mockData
-    totalBreachedCustomers.value = mockData.length
+    // 调用API获取违约客户数据
+    const response = await customerApi.getBreachedCustomers()
+    
+    // 我们需要从每个客户的违约记录中获取额外信息
+    const detailedCustomers = await Promise.all(
+      response.map(async (customer) => {
+        try {
+          // 获取该客户的所有违约记录
+          const breachRecords = await breachApi.getBreachRecordsByCustomerId(customer.id)
+          
+          if (breachRecords.length > 0) {
+            // 排序违约记录，获取最早和最新的违约时间
+            const sortedRecords = [...breachRecords].sort((a, b) => 
+              new Date(a.breachTime).getTime() - new Date(b.breachTime).getTime()
+            )
+            
+            return {
+              ...customer,
+              totalBreachCount: breachRecords.length,
+              firstBreachTime: sortedRecords[0].breachTime,
+              latestBreachTime: sortedRecords[sortedRecords.length - 1].breachTime,
+              latestBreachSeverity: sortedRecords[sortedRecords.length - 1].severity
+            } as BreachedCustomer
+          }
+          
+          // 如果没有违约记录，返回基本信息
+          return {
+            ...customer,
+            totalBreachCount: 0,
+            firstBreachTime: '',
+            latestBreachTime: '',
+            latestBreachSeverity: 'LOW' as const
+          } as BreachedCustomer
+        } catch (error) {
+          console.error(`获取客户ID: ${customer.id} 的违约记录失败:`, error)
+          // 出错时返回基本信息
+          return {
+            ...customer,
+            totalBreachCount: 0,
+            firstBreachTime: '',
+            latestBreachTime: '',
+            latestBreachSeverity: 'LOW' as const
+          } as BreachedCustomer
+        }
+      })
+    )
+    
+    breachedCustomers.value = detailedCustomers.filter(c => c.totalBreachCount > 0)
     updatePaginationData()
   } catch (error) {
     ElMessage.error('获取违约客户失败')
@@ -284,14 +327,36 @@ const handleCurrentChange = (current: number) => {
 // 显示客户详情
 const showCustomerDetails = async (id: number) => {
   try {
-    // 在实际项目中，这里应该调用API获取详情
-    const customer = breachedCustomers.value.find(item => item.id === id)
-    if (customer) {
-      currentCustomer.value = customer
-      detailDialogVisible.value = true
+    // 调用API获取客户详情
+    const customer = await customerApi.getCustomerById(id)
+    
+    // 获取该客户的违约记录以补充详情
+    const breachRecords = await breachApi.getBreachRecordsByCustomerId(id)
+    
+    if (breachRecords.length > 0) {
+      // 排序违约记录，获取最早和最新的违约时间
+      const sortedRecords = [...breachRecords].sort((a, b) => 
+        new Date(a.breachTime).getTime() - new Date(b.breachTime).getTime()
+      )
+      
+      currentCustomer.value = {
+        ...customer,
+        totalBreachCount: breachRecords.length,
+        firstBreachTime: sortedRecords[0].breachTime,
+        latestBreachTime: sortedRecords[sortedRecords.length - 1].breachTime,
+        latestBreachSeverity: sortedRecords[sortedRecords.length - 1].severity
+      } as BreachedCustomer
     } else {
-      ElMessage.error('未找到该客户')
+      currentCustomer.value = {
+        ...customer,
+        totalBreachCount: 0,
+        firstBreachTime: '',
+        latestBreachTime: '',
+        latestBreachSeverity: 'LOW' as const
+      } as BreachedCustomer
     }
+    
+    detailDialogVisible.value = true
   } catch (error) {
     ElMessage.error('获取客户详情失败')
     console.error('获取客户详情失败:', error)
@@ -299,9 +364,22 @@ const showCustomerDetails = async (id: number) => {
 }
 
 // 查看违约记录
-const viewBreachRecords = (customerId: number) => {
-  // 在实际项目中，这里应该跳转到违约记录页面或打开违约记录对话框
-  ElMessage.info(`查看客户ID: ${customerId} 的违约记录`)
+const viewBreachRecords = async (customerId: number) => {
+  try {
+    // 调用API获取客户的违约记录
+    const breachRecords = await breachApi.getBreachRecordsByCustomerId(customerId)
+    
+    if (breachRecords.length > 0) {
+      // 在实际项目中，这里应该跳转到违约记录页面或打开违约记录对话框
+      ElMessage.info(`查看到客户ID: ${customerId} 的${breachRecords.length}条违约记录`)
+      // 例如：router.push(`/breach-records?customerId=${customerId}`)
+    } else {
+      ElMessage.info(`未找到客户ID: ${customerId} 的违约记录`)
+    }
+  } catch (error) {
+    ElMessage.error('获取违约记录失败')
+    console.error('获取违约记录失败:', error)
+  }
 }
 
 // 关闭对话框
@@ -310,57 +388,7 @@ const handleClose = () => {
   detailDialogVisible.value = false
 }
 
-// 生成模拟数据
-const generateMockBreachedCustomers = (): BreachedCustomer[] => {
-  const industries = ['科技', '贸易', '物流', '金融', '制造']
-  const regions = ['北京', '上海', '广州', '深圳', '杭州']
-  const ratings = ['AAA', 'AA', 'A', 'BBB', 'BB']
-  const severities: ('HIGH' | 'MEDIUM' | 'LOW')[] = ['HIGH', 'MEDIUM', 'LOW']
-  
-  const customers: BreachedCustomer[] = []
-  
-  for (let i = 1; i <= 20; i++) {
-    const industry = industries[Math.floor(Math.random() * industries.length)]
-    const region = regions[Math.floor(Math.random() * regions.length)]
-    const rating = ratings[Math.floor(Math.random() * ratings.length)]
-    const totalBreachCount = Math.floor(Math.random() * 5) + 1
-    const latestBreachSeverity = severities[Math.floor(Math.random() * severities.length)]
-    
-    // 生成过去180天内的随机日期作为首次违约时间
-    const now = new Date()
-    const firstBreachDays = Math.floor(Math.random() * 180) + 30
-    const firstBreachDate = new Date(now.getTime() - firstBreachDays * 24 * 60 * 60 * 1000)
-    
-    // 生成首次违约时间之后、现在之前的随机日期作为最新违约时间
-    const latestBreachDays = Math.floor(Math.random() * (firstBreachDays - 1)) + 1
-    const latestBreachDate = new Date(now.getTime() - latestBreachDays * 24 * 60 * 60 * 1000)
-    
-    // 生成创建时间（在首次违约之前）
-    const createDays = firstBreachDays + Math.floor(Math.random() * 365) + 30
-    const createDate = new Date(now.getTime() - createDays * 24 * 60 * 60 * 1000)
-    
-    // 格式化日期
-    const formatDate = (date: Date) => {
-      return date.toISOString().slice(0, 19).replace('T', ' ')
-    }
-    
-    customers.push({
-      id: i,
-      name: `${region}${industry}有限公司${i}`,
-      industry,
-      region,
-      externalRating: rating,
-      isBreached: true,
-      createTime: formatDate(createDate),
-      totalBreachCount,
-      firstBreachTime: formatDate(firstBreachDate),
-      latestBreachTime: formatDate(latestBreachDate),
-      latestBreachSeverity
-    })
-  }
-  
-  return customers
-}
+
 </script>
 
 <style scoped>

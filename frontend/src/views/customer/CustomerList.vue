@@ -262,32 +262,15 @@ const formRules = reactive({
   ]
 })
 
-// 模拟获取客户列表数据
+// 获取客户列表数据
 const fetchCustomers = async () => {
   loading.value = true
   try {
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
-    // 在实际项目中，这里应该调用API获取数据
-    // const response = await customerApi.getCustomers(pagination.currentPage, pagination.pageSize, searchKeyword.value)
-    
-    // 使用模拟数据
-    const mockData: CustomerResponseDTO[] = [
-      { id: 1, name: '北京星辰科技有限公司', contactPerson: '张三', phone: '13800138001', industry: 'TECH', status: 'NORMAL', breachCount: 1, createTime: '2023-07-01 10:30:00', updateTime: '2023-07-10 15:20:00' },
-      { id: 2, name: '上海远景贸易有限公司', contactPerson: '李四', phone: '13800138002', industry: 'TRADE', status: 'WARNING', breachCount: 2, createTime: '2023-06-15 09:45:00', updateTime: '2023-07-05 14:30:00' },
-      { id: 3, name: '广州恒远物流有限公司', contactPerson: '王五', phone: '13800138003', industry: 'LOGISTICS', status: 'BLOCKED', breachCount: 3, createTime: '2023-06-10 14:20:00', updateTime: '2023-07-01 11:15:00' },
-      { id: 4, name: '深圳科技创新有限公司', contactPerson: '赵六', phone: '13800138004', industry: 'TECH', status: 'NORMAL', breachCount: 0, createTime: '2023-05-25 11:30:00', updateTime: '2023-06-20 10:45:00' },
-      { id: 5, name: '杭州未来金融服务有限公司', contactPerson: '钱七', phone: '13800138005', industry: 'FINANCE', status: 'NORMAL', breachCount: 1, createTime: '2023-05-20 16:15:00', updateTime: '2023-06-15 14:50:00' },
-      { id: 6, name: '南京智慧城市建设有限公司', contactPerson: '孙八', phone: '13800138006', industry: 'TECH', status: 'WARNING', breachCount: 2, createTime: '2023-05-15 09:50:00', updateTime: '2023-06-10 15:30:00' },
-      { id: 7, name: '成都华西医疗科技有限公司', contactPerson: '周九', phone: '13800138007', industry: 'MEDICAL', status: 'NORMAL', breachCount: 0, createTime: '2023-05-10 14:25:00', updateTime: '2023-06-05 11:20:00' },
-      { id: 8, name: '武汉长江环保科技有限公司', contactPerson: '吴十', phone: '13800138008', industry: 'ENVIRONMENT', status: 'BLOCKED', breachCount: 3, createTime: '2023-05-05 10:40:00', updateTime: '2023-06-01 16:45:00' },
-      { id: 9, name: '西安古都文化旅游有限公司', contactPerson: '郑十一', phone: '13800138009', industry: 'TRADE', status: 'NORMAL', breachCount: 0, createTime: '2023-04-30 15:35:00', updateTime: '2023-05-25 10:15:00' },
-      { id: 10, name: '重庆山城食品有限公司', contactPerson: '王十二', phone: '13800138010', industry: 'TRADE', status: 'WARNING', breachCount: 1, createTime: '2023-04-25 09:20:00', updateTime: '2023-05-20 14:30:00' }
-    ]
+    // 调用API获取数据，传递分页和筛选参数
+    const response = await customerApi.getAllCustomers()
     
     // 根据筛选条件过滤数据
-    let filteredData = [...mockData]
+    let filteredData = [...response]
     
     if (searchKeyword.value) {
       const keyword = searchKeyword.value.toLowerCase()
@@ -326,6 +309,29 @@ const fetchCustomers = async () => {
     console.error('获取客户列表失败:', error)
   } finally {
     loading.value = false
+  }
+}
+
+// 提交表单
+const submitForm = async () => {
+  if (!formRef.value) return
+  
+  try {
+    await formRef.value.validate()
+    
+    // 调用API保存数据
+    if (isEdit.value) {
+      await customerApi.updateCustomer(formData.id!, formData)
+    } else {
+      await customerApi.createCustomer(formData)
+    }
+    
+    dialogVisible.value = false
+    ElMessage.success(isEdit.value ? '客户信息更新成功' : '客户新增成功')
+    fetchCustomers()
+  } catch (error) {
+    ElMessage.error(isEdit.value ? '客户信息更新失败' : '客户新增失败')
+    console.error(isEdit.value ? '更新客户失败:' : '新增客户失败:', error)
   }
 }
 
@@ -416,32 +422,6 @@ const editCustomer = (customerId: number) => {
   }
 }
 
-// 提交表单
-const submitForm = async () => {
-  if (!formRef.value) return
-  
-  try {
-    await formRef.value.validate()
-    
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // 在实际项目中，这里应该调用API保存数据
-    // if (isEdit.value) {
-    //   await customerApi.updateCustomer(formData.id!, formData)
-    // } else {
-    //   await customerApi.createCustomer(formData)
-    // }
-    
-    dialogVisible.value = false
-    ElMessage.success(isEdit.value ? '客户信息更新成功' : '客户新增成功')
-    fetchCustomers()
-  } catch (error) {
-    ElMessage.error(isEdit.value ? '客户信息更新失败' : '客户新增失败')
-    console.error(isEdit.value ? '更新客户失败:' : '新增客户失败:', error)
-  }
-}
-
 // 切换客户状态
 const toggleCustomerStatus = (customerId: number, currentStatus: string) => {
   const newStatus = currentStatus === 'BLOCKED' ? 'NORMAL' : 'BLOCKED'
@@ -457,11 +437,12 @@ const toggleCustomerStatus = (customerId: number, currentStatus: string) => {
     }
   ).then(async () => {
     try {
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 800))
+      // 创建一个只包含状态字段的更新对象
+      const updateData = { ...formData }
+      updateData.status = newStatus
       
-      // 在实际项目中，这里应该调用API更新客户状态
-      // await customerApi.updateCustomerStatus(customerId, newStatus)
+      // 调用API更新客户状态
+      await customerApi.updateCustomer(customerId, updateData)
       
       ElMessage.success(`${statusText}成功`)
       fetchCustomers()

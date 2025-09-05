@@ -223,7 +223,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import { User, Warning, Clock, Refresh, ArrowRight, TrendingUp } from '@element-plus/icons-vue'
+import { User, Warning, Clock, Refresh, ArrowRight} from '@element-plus/icons-vue'
 import { customerApi } from '@/api/customer'
 import { breachApi } from '@/api/breach'
 import { rebirthApi } from '@/api/rebirth'
@@ -1100,10 +1100,7 @@ const onUnmounted = () => {
 }
 
 /* 深色模式适配 */
-@media (prefers-color-scheme: dark) {
-  .dashboard-container {
-    background-color: #1a1a1a;
-  }
+@media (prefers-color-scheme: light) {
   
   .header-content .page-title {
     color: #ffffff;
