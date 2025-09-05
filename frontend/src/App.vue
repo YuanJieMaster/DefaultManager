@@ -1,3 +1,4 @@
+<script src="router/index.ts"></script>
 <template>
   <div id="app">
     <template v-if="$route.path === '/login'">
