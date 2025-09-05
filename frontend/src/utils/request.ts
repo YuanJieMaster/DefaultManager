@@ -1,8 +1,19 @@
-import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 
+// 自定义类型，确保响应拦截器返回数据而不是完整的AxiosResponse
+interface CustomAxiosInstance extends AxiosInstance {
+  request<T = any>(config: AxiosRequestConfig): Promise<T>
+  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>
+  head<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>
+  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>
+  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>
+  patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>
+}
+
 // 创建 axios 实例
-const request: AxiosInstance = axios.create({
+const request: CustomAxiosInstance = axios.create({
   baseURL: '/api',
   timeout: 10000,
   headers: {

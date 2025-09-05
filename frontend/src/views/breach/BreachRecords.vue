@@ -182,48 +182,59 @@ const stats = reactive({
 // 违约记录数据
 const breachRecords = ref<BreachRecordResponseDTO[]>([])
 
-// 模拟获取违约记录数据
+// 获取违约记录数据
 const fetchBreachRecords = async () => {
   loading.value = true
   try {
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 800))
+    // 根据不同的筛选条件获取数据
+    let allRecords: BreachRecordResponseDTO[] = []
     
-    // 在实际项目中，这里应该调用API获取数据
-    // const response = await breachApi.getBreachRecordsByStatus(statusFilter.value as any || undefined)
+    if (statusFilter.value) {
+      // 如果有状态筛选，使用状态筛选API
+      const response = await breachApi.getBreachRecordsByStatus(statusFilter.value as any)
+      allRecords = response
+    } else if (severityFilter.value) {
+      // 如果有严重程度筛选，使用严重程度筛选API
+      const response = await breachApi.getBreachRecordsBySeverity(severityFilter.value as any)
+      allRecords = response
+    } else {
+      // 如果没有特定筛选，获取所有状态的记录并合并
+      const pendingResponse = await breachApi.getBreachRecordsByStatus('PENDING')
+      const approvedResponse = await breachApi.getBreachRecordsByStatus('APPROVED')
+      const rejectedResponse = await breachApi.getBreachRecordsByStatus('REJECTED')
+      
+      // 合并所有记录
+      allRecords = [...pendingResponse, ...approvedResponse, ...rejectedResponse]
+    }
     
-    // 使用模拟数据
-    const mockData: BreachRecordResponseDTO[] = [
-      { id: 102, customerId: 1, customerName: '北京星辰科技有限公司', reason: '未按时还款超过30天，经多次催促仍未履行合同义务', severity: 'HIGH', applicantId: 1, status: 'PENDING', createTime: '2023-07-12 14:30:22' },
-      { id: 101, customerId: 2, customerName: '上海远景贸易有限公司', reason: '违反合同约定的付款条款，延迟付款达到20天', severity: 'MEDIUM', applicantId: 2, status: 'APPROVED', reviewerId: 3, reviewTime: '2023-07-10 16:45:12', createTime: '2023-07-08 09:15:36' },
-      { id: 100, customerId: 3, customerName: '广州恒远物流有限公司', reason: '运输过程中货物损坏，未按合同约定进行赔偿', severity: 'HIGH', applicantId: 1, status: 'REJECTED', reviewerId: 3, reviewTime: '2023-07-05 11:20:48', createTime: '2023-07-01 15:30:00' },
-      { id: 99, customerId: 4, customerName: '深圳科技创新有限公司', reason: '技术服务未达到合同约定标准', severity: 'MEDIUM', applicantId: 2, status: 'APPROVED', reviewerId: 3, reviewTime: '2023-06-28 14:10:25', createTime: '2023-06-25 10:05:18' },
-      { id: 98, customerId: 5, customerName: '杭州未来金融服务有限公司', reason: '财务报表与实际情况不符，存在虚假记录', severity: 'HIGH', applicantId: 1, status: 'APPROVED', reviewerId: 3, reviewTime: '2023-06-20 09:35:40', createTime: '2023-06-15 16:20:32' },
-      { id: 97, customerId: 1, customerName: '北京星辰科技有限公司', reason: '项目交付延迟，影响我方业务进度', severity: 'LOW', applicantId: 2, status: 'PENDING', createTime: '2023-06-10 11:45:15' },
-      { id: 96, customerId: 2, customerName: '上海远景贸易有限公司', reason: '产品质量不符合合同约定标准', severity: 'MEDIUM', applicantId: 1, status: 'APPROVED', reviewerId: 3, reviewTime: '2023-06-05 15:25:30', createTime: '2023-05-30 08:40:12' },
-      { id: 95, customerId: 6, customerName: '南京智慧城市建设有限公司', reason: '未按约定时间提供技术支持', severity: 'LOW', applicantId: 2, status: 'REJECTED', reviewerId: 3, reviewTime: '2023-05-25 10:50:45', createTime: '2023-05-20 13:15:20' },
-      { id: 94, customerId: 7, customerName: '成都华西医疗科技有限公司', reason: '医疗设备交付延迟，影响医院正常运营', severity: 'HIGH', applicantId: 1, status: 'APPROVED', reviewerId: 3, reviewTime: '2023-05-15 14:20:35', createTime: '2023-05-10 09:30:18' },
-      { id: 93, customerId: 8, customerName: '武汉长江环保科技有限公司', reason: '环保设备未达到国家规定标准', severity: 'MEDIUM', applicantId: 2, status: 'PENDING', createTime: '2023-05-05 11:15:40' }
-    ]
-    
-    // 根据筛选条件过滤数据
-    let filteredData = [...mockData]
+    // 根据搜索关键词和日期范围进一步过滤
+    let filteredData = [...allRecords]
     
     if (searchKeyword.value) {
       const keyword = searchKeyword.value.toLowerCase()
       filteredData = filteredData.filter(record => 
-        record.customerName.toLowerCase().includes(keyword) || 
-        record.reason.toLowerCase().includes(keyword)
+        (record.customerName && record.customerName.toLowerCase().includes(keyword)) || 
+        (record.reason && record.reason.toLowerCase().includes(keyword))
       )
     }
     
-    if (statusFilter.value) {
-      filteredData = filteredData.filter(record => record.status === statusFilter.value)
+    if (dateRange.value) {
+      const [startDate, endDate] = dateRange.value
+      filteredData = filteredData.filter(record => {
+        if (!record.createTime) return false
+        const recordDate = new Date(record.createTime)
+        const start = new Date(startDate)
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999)
+        return recordDate >= start && recordDate <= end
+      })
     }
     
-    if (severityFilter.value) {
-      filteredData = filteredData.filter(record => record.severity === severityFilter.value)
-    }
+    // 按创建时间降序排序
+    filteredData.sort((a, b) => {
+      if (!a.createTime || !b.createTime) return 0
+      return new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
+    })
     
     // 计算分页数据
     const total = filteredData.length
@@ -311,14 +322,10 @@ const deleteRecord = (recordId: number) => {
     }
   ).then(async () => {
     try {
-      // 在实际项目中，这里应该调用API删除记录
-      // await breachApi.deleteBreachRecord(recordId)
+      // 调用API删除记录
+      await breachApi.deleteBreachRecord(recordId)
       
-      // 模拟删除操作
-      ElMessage.loading('正在删除记录，请稍候...', 0)
-      await new Promise(resolve => setTimeout(resolve, 1000))
       ElMessage.closeAll()
-      
       ElMessage.success('记录删除成功')
       fetchBreachRecords()
     } catch (error) {

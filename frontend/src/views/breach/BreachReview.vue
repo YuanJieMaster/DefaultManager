@@ -204,11 +204,30 @@ onMounted(() => {
 const fetchBreachRecords = async () => {
   loading.value = true
   try {
-    // 在实际项目中，这里应该调用API获取数据
-    // 由于没有真实API，使用模拟数据
-    const mockData: BreachRecordResponseDTO[] = generateMockBreachRecords()
-    breachRecords.value = mockData
-    totalRecords.value = mockData.length
+    // 根据搜索条件调用相应的API
+    let records: BreachRecordResponseDTO[] = []
+    
+    if (searchForm.severity) {
+      // 根据严重程度查询
+      records = await breachApi.getBreachRecordsBySeverity(searchForm.severity as 'HIGH' | 'MEDIUM' | 'LOW')
+    } else {
+      // 默认获取所有待审核的记录
+      records = await breachApi.getBreachRecordsByStatus('PENDING')
+      // 如果需要获取所有状态的记录，可以合并不同状态的结果
+      // const approvedRecords = await breachApi.getBreachRecordsByStatus('APPROVED')
+      // const rejectedRecords = await breachApi.getBreachRecordsByStatus('REJECTED')
+      // records = [...pendingRecords, ...approvedRecords, ...rejectedRecords]
+    }
+    
+    // 如果有客户名称搜索条件，在前端进行过滤
+    if (searchForm.customerName) {
+      records = records.filter(item => 
+        item.customerName.includes(searchForm.customerName)
+      )
+    }
+    
+    breachRecords.value = records
+    totalRecords.value = records.length
     updatePaginationData()
   } catch (error) {
     ElMessage.error('获取违约记录失败')
@@ -271,8 +290,8 @@ const handleCurrentChange = (current: number) => {
 // 显示违约记录详情
 const showBreachDetails = async (id: number) => {
   try {
-    // 在实际项目中，这里应该调用API获取详情
-    const record = breachRecords.value.find(item => item.id === id)
+    // 调用API获取详情
+    const record = await breachApi.getBreachRecordById(id)
     if (record) {
       currentBreachRecord.value = record
       detailDialogVisible.value = true
@@ -305,22 +324,14 @@ const rejectBreachRecord = (id: number) => {
 const confirmReview = async () => {
   reviewLoading.value = true
   try {
-    // 在实际项目中，这里应该调用API进行审核
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // 调用API进行审核
+    const status = reviewAction.value === 'approve' ? 'APPROVED' : 'REJECTED'
+    // 假设当前审核人ID为1，实际项目中应该从登录状态获取
+    await breachApi.reviewBreachRecord(currentReviewId.value, status, 1)
     
-    // 更新本地数据
-    const index = breachRecords.value.findIndex(item => item.id === currentReviewId.value)
-    if (index !== -1) {
-      breachRecords.value[index] = {
-        ...breachRecords.value[index],
-        status: reviewAction.value === 'approve' ? 'APPROVED' : 'REJECTED',
-        reviewerId: 1, // 假设当前审核人ID为1
-        reviewTime: new Date().toISOString()
-      }
-    }
+    // 重新获取数据以更新列表
+    await fetchBreachRecords()
     
-    updatePaginationData()
     reviewDialogVisible.value = false
     ElMessage.success(`违约申请${reviewAction.value === 'approve' ? '已通过' : '已拒绝'}`)
   } catch (error) {
@@ -345,52 +356,7 @@ const truncateText = (text: string, maxLength: number) => {
   return text.substring(0, maxLength) + '...'
 }
 
-// 生成模拟数据
-const generateMockBreachRecords = (): BreachRecordResponseDTO[] => {
-  const industries = ['科技', '贸易', '物流', '金融', '制造']
-  const regions = ['北京', '上海', '广州', '深圳', '杭州']
-  const statuses: ('PENDING' | 'APPROVED' | 'REJECTED')[] = ['PENDING', 'PENDING', 'PENDING', 'APPROVED', 'REJECTED']
-  const severities: ('HIGH' | 'MEDIUM' | 'LOW')[] = ['HIGH', 'MEDIUM', 'LOW', 'MEDIUM', 'HIGH']
-  
-  const records: BreachRecordResponseDTO[] = []
-  
-  for (let i = 1; i <= 20; i++) {
-    const status = statuses[Math.floor(Math.random() * statuses.length)]
-    const severity = severities[Math.floor(Math.random() * severities.length)]
-    const industry = industries[Math.floor(Math.random() * industries.length)]
-    const region = regions[Math.floor(Math.random() * regions.length)]
-    
-    // 生成过去30天内的随机日期
-    const now = new Date()
-    const daysAgo = Math.floor(Math.random() * 30)
-    const createDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
-    
-    // 格式化日期为ISO字符串
-    const createTime = createDate.toISOString().slice(0, 19).replace('T', ' ')
-    
-    // 随机生成是否有审核时间
-    let reviewTime: string | undefined = undefined
-    if (status !== 'PENDING') {
-      const reviewDate = new Date(createDate.getTime() + Math.floor(Math.random() * (daysAgo || 1)) * 24 * 60 * 60 * 1000)
-      reviewTime = reviewDate.toISOString().slice(0, 19).replace('T', ' ')
-    }
-    
-    records.push({
-      id: i,
-      customerId: Math.floor(Math.random() * 1000) + 1,
-      customerName: `${region}${industry}有限公司${i}`,
-      reason: `客户未能按时支付货款，已逾期${Math.floor(Math.random() * 90) + 10}天。多次沟通后仍未履行付款义务，经确认存在违约行为。`,
-      severity,
-      applicantId: Math.floor(Math.random() * 100) + 1,
-      reviewerId: status !== 'PENDING' ? Math.floor(Math.random() * 100) + 1 : undefined,
-      status,
-      reviewTime,
-      createTime
-    })
-  }
-  
-  return records
-}
+// 生成模拟数据的函数已移除，现在使用实际API调用
 </script>
 
 <style scoped>

@@ -156,11 +156,9 @@ const selectedCustomer = ref<CustomerResponseDTO | null>(null)
 
 // 上传相关
 const uploadUrl = '/api/upload'
-const fileList = ref<Array<{
-  name: string
-  url: string
-  uid: string
-}>>([])
+// 从Element Plus导入正确的UploadFile类型
+import type { UploadFile } from 'element-plus'
+const fileList = ref<UploadFile[]>([])
 
 // 当前用户信息（模拟数据）
 const currentUser = ref({
@@ -177,21 +175,13 @@ const remoteSearchCustomers = async (query: string) => {
   
   searchLoading.value = true
   try {
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // 在实际项目中，这里应该调用API搜索客户
-    // 由于没有真实API，使用模拟数据
-    const mockCustomers: CustomerResponseDTO[] = [
-      { id: 1, name: '北京星辰科技有限公司', industry: '科技', region: '北京', externalRating: 'A', isBreached: false, createTime: '2023-01-15' },
-      { id: 2, name: '上海远景贸易有限公司', industry: '贸易', region: '上海', externalRating: 'B', isBreached: true, createTime: '2023-02-20' },
-      { id: 3, name: '广州恒远物流有限公司', industry: '物流', region: '广州', externalRating: 'A+', isBreached: false, createTime: '2023-03-10' },
-      { id: 4, name: '深圳科技创新有限公司', industry: '科技', region: '深圳', externalRating: 'B+', isBreached: false, createTime: '2023-04-05' },
-      { id: 5, name: '杭州未来金融服务有限公司', industry: '金融', region: '杭州', externalRating: 'A-', isBreached: true, createTime: '2023-05-18' }
-    ]
+    // 调用API获取所有客户，然后在前端进行过滤
+    // 注意：响应拦截器已经返回了response.data
+    // 添加类型断言确保TypeScript识别返回类型
+    const customers = (await customerApi.getAllCustomers()) as CustomerResponseDTO[]
     
     // 过滤匹配的客户
-    customerOptions.value = mockCustomers.filter(customer =>
+    customerOptions.value = customers.filter(customer =>
       customer.name.includes(query) || customer.industry.includes(query) || customer.region.includes(query)
     )
   } catch (error) {
@@ -205,17 +195,9 @@ const remoteSearchCustomers = async (query: string) => {
 watch(() => breachForm.customerId, async (newId) => {
   if (newId > 0) {
     try {
-      // 在实际项目中，这里应该调用API获取客户详情
-      // 由于没有真实API，使用模拟数据
-      const mockCustomers: CustomerResponseDTO[] = [
-        { id: 1, name: '北京星辰科技有限公司', industry: '科技', region: '北京', externalRating: 'A', isBreached: false, createTime: '2023-01-15' },
-        { id: 2, name: '上海远景贸易有限公司', industry: '贸易', region: '上海', externalRating: 'B', isBreached: true, createTime: '2023-02-20' },
-        { id: 3, name: '广州恒远物流有限公司', industry: '物流', region: '广州', externalRating: 'A+', isBreached: false, createTime: '2023-03-10' },
-        { id: 4, name: '深圳科技创新有限公司', industry: '科技', region: '深圳', externalRating: 'B+', isBreached: false, createTime: '2023-04-05' },
-        { id: 5, name: '杭州未来金融服务有限公司', industry: '金融', region: '杭州', externalRating: 'A-', isBreached: true, createTime: '2023-05-18' }
-      ]
-      
-      selectedCustomer.value = mockCustomers.find(c => c.id === newId) || null
+      // 调用API获取客户详情
+      // 注意：响应拦截器已经返回了response.data
+      selectedCustomer.value = await customerApi.getCustomerById(newId)
     } catch (error) {
       ElMessage.error('获取客户详情失败')
     }
@@ -231,6 +213,12 @@ const submitUpload = () => {
 
 const handleUploadSuccess = (response: any, file: any) => {
   ElMessage.success(`${file.name} 文件上传成功`)
+  // 将上传成功的文件添加到文件列表
+  fileList.value.push({
+    name: file.name,
+    url: file.url || '',
+    uid: file.uid
+  })
 }
 
 const handleUploadError = (error: any, file: any) => {
@@ -253,10 +241,8 @@ const submitBreachRecord = async () => {
         type: 'warning'
       }
     ).then(async () => {
-      // 在实际项目中，这里应该调用API提交违约记录
-      // 模拟API调用延迟
-      ElMessage.loading('正在提交申请，请稍候...', 0)
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // 调用API提交违约记录
+      await breachApi.createBreachRecord(breachForm)
       ElMessage.closeAll()
       
       ElMessage.success('违约申请提交成功')
@@ -272,6 +258,7 @@ const submitBreachRecord = async () => {
   } catch (error) {
     // 表单验证失败或提交出错
     console.error('提交违约申请失败:', error)
+    ElMessage.error('提交违约申请失败')
   }
 }
 
