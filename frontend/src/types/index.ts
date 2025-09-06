@@ -150,6 +150,38 @@ export interface PaginatedResponse<T> {
   number: number
 }
 
+// 违约原因相关类型
+export interface BreachReasonDTO {
+  reasonContent: string
+  isEnabled?: boolean
+  sortOrder?: number
+}
+
+export interface BreachReasonResponseDTO {
+  id: number
+  reasonContent: string
+  isEnabled: boolean
+  sortOrder: number
+  createTime: string
+  updateTime?: string
+}
+
+// 重生原因相关类型
+export interface RebirthReasonDTO {
+  reasonContent: string
+  isEnabled?: boolean
+  sortOrder?: number
+}
+
+export interface RebirthReasonResponseDTO {
+  id: number
+  reasonContent: string
+  isEnabled: boolean
+  sortOrder: number
+  createTime: string
+  updateTime?: string
+}
+
 // 统计相关类型
 export interface BreachStatistics {
   totalBreaches: number

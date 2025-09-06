@@ -19,12 +19,14 @@
               <el-menu-item index="/breach/records">违约记录</el-menu-item>
               <el-menu-item index="/breach/apply">违约申请</el-menu-item>
               <el-menu-item index="/breach/review">违约审核</el-menu-item>
+              <el-menu-item index="/breach/reasons">违约原因维护</el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="/rebirth">
               <template #title><el-icon><Refresh /></el-icon><span>重生管理</span></template>
               <el-menu-item index="/rebirth/records">重生记录</el-menu-item>
               <el-menu-item index="/rebirth/apply">重生申请</el-menu-item>
               <el-menu-item index="/rebirth/review">重生审核</el-menu-item>
+              <el-menu-item index="/rebirth/reasons">重生原因维护</el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="/statistics">
               <template #title><el-icon><TrendCharts /></el-icon><span>统计分析</span></template>

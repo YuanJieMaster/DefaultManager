@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/rebirth-reasons")
+@RequestMapping("/rebirth-reasons")
 @RequiredArgsConstructor
 public class RebirthReasonController {
 

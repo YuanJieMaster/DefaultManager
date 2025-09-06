@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/breach-reasons")
+@RequestMapping("/breach-reasons")
 @RequiredArgsConstructor
 public class BreachReasonController {
 

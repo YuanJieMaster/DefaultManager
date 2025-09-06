@@ -62,6 +62,12 @@ const routes: RouteRecordRaw[] = [
         name: 'BreachReview',
         component: () => import('@/views/breach/BreachReview.vue'),
         meta: { title: '违约审核' }
+      },
+      {
+        path: 'reasons',
+        name: 'BreachReasons',
+        component: () => import('@/views/breach/BreachReasons.vue'),
+        meta: { title: '违约原因维护' }
       }
     ]
   },
@@ -88,6 +94,12 @@ const routes: RouteRecordRaw[] = [
         name: 'RebirthReview',
         component: () => import('@/views/rebirth/RebirthReview.vue'),
         meta: { title: '重生审核' }
+      },
+      {
+        path: 'reasons',
+        name: 'RebirthReasons',
+        component: () => import('@/views/rebirth/RebirthReasons.vue'),
+        meta: { title: '重生原因维护' }
       }
     ]
   },
