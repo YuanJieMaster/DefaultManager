@@ -18,8 +18,8 @@
         <el-form-item label="角色">
           <el-select v-model="searchForm.role" placeholder="请选择角色" clearable>
             <el-option label="管理员" value="ADMIN" />
-            <el-option label="操作员" value="OPERATOR" />
-            <el-option label="审核员" value="REVIEWER" />
+            <el-option label="操作员" value="RISK_CONTROL" />
+            <el-option label="审核员" value="RISK_REVIEWER" />
             <el-option label="只读用户" value="VIEWER" />
           </el-select>
         </el-form-item>
@@ -114,8 +114,8 @@
         <el-form-item label="角色" prop="role">
           <el-select v-model="userForm.role" placeholder="请选择角色">
             <el-option label="管理员" value="ADMIN" />
-            <el-option label="操作员" value="OPERATOR" />
-            <el-option label="审核员" value="REVIEWER" />
+            <el-option label="操作员" value="RISK_CONTROL" />
+            <el-option label="审核员" value="RISK_REVIEWER" />
             <el-option label="只读用户" value="VIEWER" />
           </el-select>
         </el-form-item>
@@ -233,8 +233,8 @@ const formatDate = (dateString: string) => {
 const getRoleTagType = (role: string) => {
   const roleTypes: Record<string, string> = {
     ADMIN: 'danger',
-    OPERATOR: 'primary',
-    REVIEWER: 'warning',
+    RISK_CONTROL: 'primary',
+    RISK_REVIEWER: 'warning',
     VIEWER: 'success'
   }
   return roleTypes[role] || 'default'
@@ -244,8 +244,8 @@ const getRoleTagType = (role: string) => {
 const getRoleLabel = (role: string) => {
   const roleLabels: Record<string, string> = {
     ADMIN: '管理员',
-    OPERATOR: '操作员',
-    REVIEWER: '审核员',
+    RISK_CONTROL: '操作员',
+    RISK_REVIEWER: '审核员',
     VIEWER: '只读用户'
   }
   return roleLabels[role] || role
@@ -278,7 +278,7 @@ const getUsers = async () => {
 
 // 生成模拟用户数据
 const generateMockUsers = (): User[] => {
-  const roles = ['ADMIN', 'OPERATOR', 'REVIEWER', 'VIEWER']
+  const roles = ['ADMIN', 'RISK_CONTROL', 'RISK_REVIEWER', 'VIEWER']
   const mockUsers: User[] = []
   
   for (let i = 1; i <= 50; i++) {

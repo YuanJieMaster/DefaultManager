@@ -34,6 +34,7 @@
       <el-table v-loading="loading" :data="breachRecordsData" style="width: 100%">
         <el-table-column prop="id" label="记录ID" width="80" />
         <el-table-column prop="customerName" label="客户名称" width="180" />
+        <el-table-column prop="applicantId" label="申请人ID" width="80" />
         <el-table-column prop="breachReasonContent" label="违约原因" min-width="200">
           <template #default="scope">
             <el-popover
@@ -65,7 +66,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" width="240" fixed="right">
           <template #default="scope">
             <el-button type="primary" size="small" @click="showBreachDetails(scope.row.id)">详情</el-button>
             <template v-if="scope.row.status === 'PENDING'">
@@ -131,16 +132,16 @@
       :title="`${reviewAction === 'approve' ? '通过' : '拒绝'}违约申请`"
       width="500px"
     >
-      <el-form ref="reviewFormRef" :model="reviewForm" label-width="80px">
-        <el-form-item label="审核意见" prop="reviewComments">
-          <el-input
-            v-model="reviewForm.reviewComments"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入审核意见"
-          />
-        </el-form-item>
-      </el-form>
+<!--      <el-form ref="reviewFormRef" :model="reviewForm" label-width="80px">-->
+<!--        <el-form-item label="审核意见" prop="reviewComments">-->
+<!--          <el-input-->
+<!--            v-model="reviewForm.reviewComments"-->
+<!--            type="textarea"-->
+<!--            :rows="4"-->
+<!--            placeholder="请输入审核意见"-->
+<!--          />-->
+<!--        </el-form-item>-->
+<!--      </el-form>-->
       <template #footer>
         <el-button @click="reviewDialogVisible = false">取消</el-button>
         <el-button

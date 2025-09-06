@@ -36,6 +36,10 @@
             <el-tag type="danger" v-if="selectedCustomer?.isBreached">已违约</el-tag>
             <el-tag type="success" v-else-if="selectedCustomer">正常</el-tag>
             <el-tag type="info" v-else>未选择</el-tag>
+            <div v-if="selectedCustomer?.isBreached" class="error-tip">
+              <i class="el-icon-warning" style="color: #f56c6c;"></i>
+              <span style="color: #f56c6c;">已是违约客户禁止发起</span>
+            </div>
           </el-form-item>
         </div>
 
@@ -86,19 +90,19 @@
         </div>
 
         <!-- 申请人信息 -->
-        <div class="form-section">
-          <h4>申请人信息</h4>
-          <el-form-item label="申请人姓名">
-            <el-input v-model="currentUser.name" disabled />
-          </el-form-item>
-          <el-form-item label="申请部门">
-            <el-input v-model="currentUser.department" disabled />
-          </el-form-item>
-        </div>
+<!--        <div class="form-section">-->
+<!--          <h4>申请人信息</h4>-->
+<!--          <el-form-item label="申请人姓名">-->
+<!--            <el-input v-model="currentUser.name" disabled />-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="申请部门">-->
+<!--            <el-input v-model="currentUser.department" disabled />-->
+<!--          </el-form-item>-->
+<!--        </div>-->
 
         <!-- 表单操作按钮 -->
         <el-form-item>
-          <el-button type="primary" @click="submitBreachRecord">提交申请</el-button>
+          <el-button type="primary" :disabled="selectedCustomer?.isBreached" @click="submitBreachRecord">提交申请</el-button>
           <el-button @click="resetForm">重置</el-button>
           <el-button type="info" @click="cancelApply">取消</el-button>
         </el-form-item>
@@ -143,7 +147,7 @@ const breachForm = reactive<BreachRecordDTO>({
   customerId: 0,
   breachReasonId: 0,
   severity: 'MEDIUM',
-  applicantId: 8 // 假设当前用户ID为1
+  applicantId: 6 // 假设当前用户ID为1
 })
 
 // 违约原因列表

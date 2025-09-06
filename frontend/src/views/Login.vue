@@ -138,7 +138,7 @@ const onSubmit = async () => {
     
     // 延迟跳转，让用户看到成功提示
     setTimeout(() => {
-      router.push('/dashboard')
+      router.push('/customer/list')
     }, 1000)
     
   } catch (e: any) {

@@ -143,7 +143,7 @@
             <el-tag v-else type="info" class="normal-tag">普通</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right" align="center">
+        <el-table-column label="操作" width="240" fixed="right" align="center">
           <template #default="scope">
             <el-button 
               type="text" 
@@ -514,26 +514,18 @@ const approveReview = (reviewId: number) => {
 const rejectReview = (reviewId: number) => {
   const review = rebirthReviews.value.find(r => r.id === reviewId)
   if (!review) return
-  
-  ElMessageBox.prompt(
-    `请输入拒绝客户「${review.customerName}」重生申请的理由：`,
+
+  ElMessageBox.confirm(
+    `确定要拒绝客户「${review.customerName}」的重生申请吗？`,
     '拒绝确认',
     {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'danger',
-      inputType: 'textarea',
-      inputPlaceholder: '请输入拒绝理由',
-      inputValidator: (value: string) => {
-        if (!value || value.trim().length === 0) {
-          return '拒绝理由不能为空'
-        }
-        return true
-      },
       center: true
     }
-  ).then(({ value }) => {
-    submitReviewAction(reviewId, 'REJECTED', value)
+  ).then(() => {
+    submitReviewAction(reviewId, 'REJECTED', '')
   }).catch(() => {
     // 用户取消操作
   })

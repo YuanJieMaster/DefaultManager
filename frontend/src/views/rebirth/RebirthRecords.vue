@@ -131,11 +131,11 @@
             </el-popover>
           </template>
         </el-table-column>
-        <el-table-column prop="breachRecordCount" label="关联违约记录" width="120" align="center">
-          <template #default="scope">
-            <el-badge :value="scope.row.breachRecordCount" type="primary" class="breach-record-badge" />
-          </template>
-        </el-table-column>
+<!--        <el-table-column prop="breachRecordCount" label="关联违约记录" width="120" align="center">-->
+<!--          <template #default="scope">-->
+<!--            <el-badge :value="scope.row.breachRecordCount" type="primary" class="breach-record-badge" />-->
+<!--          </template>-->
+<!--        </el-table-column>-->
         <el-table-column prop="status" label="状态" width="100" align="center">
           <template #default="scope">
             <el-tag 
@@ -161,46 +161,46 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="applyTime" label="申请时间" width="180" align="center" />
+        <el-table-column prop="createTime" label="申请时间" width="180" align="center" />
         <el-table-column prop="reviewTime" label="审核时间" width="180" align="center">
           <template #default="scope">
             <span v-if="scope.row.reviewTime">{{ scope.row.reviewTime }}</span>
             <span v-else class="not-reviewed">未审核</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right" align="center">
-          <template #default="scope">
-            <el-button 
-              type="text" 
-              @click="viewRecordDetail(scope.row.id)"
-              class="action-button view-button"
-              size="small"
-            >
-              <el-icon><View /></el-icon>
-              查看
-            </el-button>
-            <el-button 
-              type="text" 
-              v-if="scope.row.status === 'PENDING'" 
-              @click="reviewRecord(scope.row.id)"
-              class="action-button review-button"
-              size="small"
-            >
-              <el-icon><Check /></el-icon>
-              审核
-            </el-button>
-            <el-button 
-              type="text" 
-              danger 
-              @click="deleteRecord(scope.row.id)"
-              class="action-button delete-button"
-              size="small"
-            >
-              <el-icon><Delete /></el-icon>
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
+<!--        <el-table-column label="操作" width="180" fixed="right" align="center">-->
+<!--          <template #default="scope">-->
+<!--            <el-button -->
+<!--              type="text" -->
+<!--              @click="viewRecordDetail(scope.row.id)"-->
+<!--              class="action-button view-button"-->
+<!--              size="small"-->
+<!--            >-->
+<!--              <el-icon><View /></el-icon>-->
+<!--              查看-->
+<!--            </el-button>-->
+<!--            <el-button -->
+<!--              type="text" -->
+<!--              v-if="scope.row.status === 'PENDING'" -->
+<!--              @click="reviewRecord(scope.row.id)"-->
+<!--              class="action-button review-button"-->
+<!--              size="small"-->
+<!--            >-->
+<!--              <el-icon><Check /></el-icon>-->
+<!--              审核-->
+<!--            </el-button>-->
+<!--            <el-button -->
+<!--              type="text" -->
+<!--              danger -->
+<!--              @click="deleteRecord(scope.row.id)"-->
+<!--              class="action-button delete-button"-->
+<!--              size="small"-->
+<!--            >-->
+<!--              <el-icon><Delete /></el-icon>-->
+<!--              删除-->
+<!--            </el-button>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
       </el-table>
 
       <!-- 分页 -->

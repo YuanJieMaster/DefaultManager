@@ -60,40 +60,40 @@
       >
         <el-table-column type="selection" width="55" />
         <el-table-column prop="id" label="客户ID" width="80" align="center" />
-        <el-table-column prop="name" label="客户名称" width="180">
+        <el-table-column prop="name" label="客户名称" width="280">
           <template #default="scope">
             <el-link type="primary" @click="viewCustomerDetail(scope.row.id)">{{ scope.row.name }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="industry" label="所属行业" width="100" align="center">
+        <el-table-column prop="industry" label="所属行业" width="160" align="center">
           <template #default="scope">
             <el-tag>{{ getIndustryLabel(scope.row.industry) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="region" label="地区" width="100" align="center" />
-        <el-table-column prop="externalRating" label="评级" width="100" align="center" />
-        <el-table-column prop="isBreached" label="是否违约" width="100" align="center">
+        <el-table-column prop="region" label="地区" width="160" align="center" />
+        <el-table-column prop="externalRating" label="评级" width="120" align="center" />
+        <el-table-column prop="isBreached" label="是否违约" width="120" align="center">
           <template #default="scope">
             <el-tag :type="scope.row.isBreached ? 'danger' : 'success'">
               {{ scope.row.isBreached ? '是' : '否' }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="180" align="center" />
-        <el-table-column label="操作" width="180" fixed="right">
-          <template #default="scope">
-            <el-button type="text" @click="viewCustomerDetail(scope.row.id)">查看</el-button>
-            <el-button type="text" @click="editCustomer(scope.row.id)">编辑</el-button>
-            <el-button 
-              type="text" 
-              :danger="scope.row.status !== 'BLOCKED'"
-              :text="scope.row.status === 'BLOCKED'"
-              @click="toggleCustomerStatus(scope.row.id, scope.row.status)"
-            >
-              {{ scope.row.status === 'BLOCKED' ? '解冻' : '冻结' }}
-            </el-button>
-          </template>
-        </el-table-column>
+        <el-table-column prop="createTime" label="创建时间" width="360" align="center" />
+<!--        <el-table-column label="操作" width="180" fixed="right">-->
+<!--          <template #default="scope">-->
+<!--            <el-button type="text" @click="viewCustomerDetail(scope.row.id)">查看</el-button>-->
+<!--            <el-button type="text" @click="editCustomer(scope.row.id)">编辑</el-button>-->
+<!--            <el-button -->
+<!--              type="text" -->
+<!--              :danger="scope.row.status !== 'BLOCKED'"-->
+<!--              :text="scope.row.status === 'BLOCKED'"-->
+<!--              @click="toggleCustomerStatus(scope.row.id, scope.row.status)"-->
+<!--            >-->
+<!--              {{ scope.row.status === 'BLOCKED' ? '解冻' : '冻结' }}-->
+<!--            </el-button>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
       </el-table>
 
       <!-- 分页 -->

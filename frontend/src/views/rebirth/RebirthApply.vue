@@ -52,21 +52,21 @@
         </el-form-item>
 
         <!-- 客户信息展示 -->
-        <template v-if="selectedCustomer">
-          <div class="customer-info-section">
-            <el-form-item label="联系电话">
-              <el-input v-model="selectedCustomer.phone" disabled class="info-input" :prefix-icon="Phone" />
-            </el-form-item>
-            <el-form-item label="所属行业">
-              <el-input v-model="selectedCustomer.industry" disabled class="info-input" :prefix-icon="Briefcase" />
-            </el-form-item>
-            <el-form-item label="合作状态">
-              <el-tag :type="getStatusTagType(selectedCustomer.status)" size="large" class="status-tag">
-                {{ getStatusLabel(selectedCustomer.status) }}
-              </el-tag>
-            </el-form-item>
-          </div>
-        </template>
+<!--        <template v-if="selectedCustomer">-->
+<!--          <div class="customer-info-section">-->
+<!--            <el-form-item label="联系电话">-->
+<!--              <el-input v-model="selectedCustomer.phone" disabled class="info-input" :prefix-icon="Phone" />-->
+<!--            </el-form-item>-->
+<!--            <el-form-item label="所属行业">-->
+<!--              <el-input v-model="selectedCustomer.industry" disabled class="info-input" :prefix-icon="Briefcase" />-->
+<!--            </el-form-item>-->
+<!--            <el-form-item label="合作状态">-->
+<!--              <el-tag :type="getStatusTagType(selectedCustomer.status)" size="large" class="status-tag">-->
+<!--                {{ getStatusLabel(selectedCustomer.status) }}-->
+<!--              </el-tag>-->
+<!--            </el-form-item>-->
+<!--          </div>-->
+<!--        </template>-->
 
         <!-- 违约记录选择 -->
         <el-form-item label="违约记录" prop="breachRecordIds" required>
@@ -115,28 +115,28 @@
         </el-form-item>
 
         <!-- 整改措施 -->
-        <el-form-item label="整改措施" prop="rectificationMeasures">
-          <el-input
-            v-model="formData.rectificationMeasures"
-            type="textarea"
-            rows="3"
-            placeholder="请描述客户针对违约问题采取的整改措施"
-            class="textarea-animation"
-          />
-          <div class="char-count">{{ formData.rectificationMeasures.length }}/300</div>
-        </el-form-item>
+<!--        <el-form-item label="整改措施" prop="rectificationMeasures">-->
+<!--          <el-input-->
+<!--            v-model="formData.rectificationMeasures"-->
+<!--            type="textarea"-->
+<!--            rows="3"-->
+<!--            placeholder="请描述客户针对违约问题采取的整改措施"-->
+<!--            class="textarea-animation"-->
+<!--          />-->
+<!--          <div class="char-count">{{ formData.rectificationMeasures.length }}/300</div>-->
+<!--        </el-form-item>-->
 
         <!-- 预期效果 -->
-        <el-form-item label="预期效果" prop="expectedEffects">
-          <el-input
-            v-model="formData.expectedEffects"
-            type="textarea"
-            rows="3"
-            placeholder="请描述实施整改措施后的预期效果"
-            class="textarea-animation"
-          />
-          <div class="char-count">{{ formData.expectedEffects.length }}/300</div>
-        </el-form-item>
+<!--        <el-form-item label="预期效果" prop="expectedEffects">-->
+<!--          <el-input-->
+<!--            v-model="formData.expectedEffects"-->
+<!--            type="textarea"-->
+<!--            rows="3"-->
+<!--            placeholder="请描述实施整改措施后的预期效果"-->
+<!--            class="textarea-animation"-->
+<!--          />-->
+<!--          <div class="char-count">{{ formData.expectedEffects.length }}/300</div>-->
+<!--        </el-form-item>-->
 
         <!-- 申请时间 -->
         <el-form-item label="申请时间">
@@ -240,6 +240,9 @@ import type { CustomerResponseDTO } from '@/types'
 import type { BreachRecordResponseDTO } from '@/types'
 import type { RebirthApplyDTO } from '@/types'
 import type { RebirthReasonResponseDTO } from '@/types'
+import {useRouter} from "vue-router";
+
+const router = useRouter()
 
 // 表单引用
 const formRef = ref<InstanceType<typeof ElForm>>()
@@ -370,7 +373,7 @@ const onCustomerChange = async (customerId: number) => {
     // 检查客户是否可以申请重生
     const canRebirth = await rebirthApi.canCustomerRebirth(customerId)
     if (!canRebirth) {
-      ElMessage.warning('该客户当前不能申请重生，请检查客户状态')
+      ElMessage.warning('该客户当前未违约，不能申请重生')
       formData.customerId = null
       selectedCustomer.value = null
       breachRecordOptions.value = []
@@ -529,7 +532,7 @@ const submitForm = async () => {
         customerId: formData.customerId,
         breachId: formData.breachRecordIds[0], // 后端目前只支持单个违约记录
         rebirthReasonId: formData.rebirthReasonId,
-        applicantId: 1 // 实际项目中应从登录状态获取当前用户ID
+        applicantId: 6 // 实际项目中应从登录状态获取当前用户ID
       }
       
       // 调用API提交申请
@@ -545,7 +548,7 @@ const submitForm = async () => {
           confirmButtonText: '确定',
           type: 'success',
           callback: () => {
-            resetForm()
+            // resetForm()
           }
         }
       )
@@ -554,6 +557,10 @@ const submitForm = async () => {
       console.error('提交重生申请失败:', error)
     } finally {
       submitting.value = false
+      // resetForm()
+      setTimeout(() => {
+        router.push('/rebirth/records')
+      }, 1000)
     }
   } catch (error) {
     // 表单验证失败

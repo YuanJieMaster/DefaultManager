@@ -40,7 +40,7 @@ public class RebirthRecordServiceImpl implements RebirthRecordService {
                 .orElseThrow(() -> new RuntimeException("Breach record not found"));
         
         // 检查客户是否可以申请重生
-        if (!canCustomerRebirth(rebirthRecordDTO.getCustomerId())) {
+        if (!canCustomerRebirth(customer.getId())) {
             throw new RuntimeException("Customer cannot apply for rebirth at this time");
         }
         

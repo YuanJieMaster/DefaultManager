@@ -13,7 +13,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
-    redirect: '/dashboard'
+    redirect: '/customer/list'
   },
   {
     path: '/dashboard',
@@ -153,7 +153,7 @@ router.beforeEach((to, _from, next) => {
   // 处理公开路由（无需登录即可访问）
   if (to.meta.public) {
     // 已登录用户访问登录页时，自动重定向到仪表盘
-    if (to.path === '/login' && auth.isAuthenticated) return next('/dashboard')
+    if (to.path === '/login' && auth.isAuthenticated) return next('/customer/list')
     return next()
   }
   

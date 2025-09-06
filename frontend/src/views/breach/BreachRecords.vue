@@ -102,13 +102,13 @@
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180" align="center" />
         <el-table-column prop="reviewTime" label="审核时间" width="180" align="center" />
-        <el-table-column label="操作" width="180" fixed="right">
-          <template #default="scope">
-            <el-button type="text" @click="viewRecordDetail(scope.row.id)">查看</el-button>
-            <el-button type="text" v-if="scope.row.status === 'PENDING'" @click="editRecord(scope.row.id)">编辑</el-button>
-            <el-button type="text" danger @click="deleteRecord(scope.row.id)">删除</el-button>
-          </template>
-        </el-table-column>
+<!--        <el-table-column label="操作" width="180" fixed="right">-->
+<!--          <template #default="scope">-->
+<!--            <el-button type="text" @click="viewRecordDetail(scope.row.id)">查看</el-button>-->
+<!--            <el-button type="text" v-if="scope.row.status === 'PENDING'" @click="editRecord(scope.row.id)">编辑</el-button>-->
+<!--            <el-button type="text" danger @click="deleteRecord(scope.row.id)">删除</el-button>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
       </el-table>
 
       <!-- 分页 -->

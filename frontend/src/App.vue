@@ -9,7 +9,7 @@
           <div class="logo"><h2>违约管理系统</h2></div>
           <el-menu :default-active="$route.path" class="sidebar-menu" router background-color="#304156" text-color="#bfcbd9" active-text-color="#409EFF">
             <!-- 仪表盘 - 只有ADMIN可以访问 -->
-            <el-menu-item v-if="auth.role === 'ADMIN'" router index="/dashboard"><el-icon><DataBoard /></el-icon><span>仪表盘</span></el-menu-item>
+<!--            <el-menu-item v-if="auth.role === 'ADMIN'" router index="/dashboard"><el-icon><DataBoard /></el-icon><span>仪表盘</span></el-menu-item>-->
             
             <!-- 客户管理 - 所有角色都可以访问 -->
             <el-sub-menu index="/customer">

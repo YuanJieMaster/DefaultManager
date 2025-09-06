@@ -73,11 +73,11 @@
     <el-card class="breached-customers-table-card">
       <el-table v-loading="loading" :data="breachedCustomersData" style="width: 100%">
         <el-table-column prop="id" label="客户ID" width="80" />
-        <el-table-column prop="name" label="客户名称" width="180" />
-        <el-table-column prop="industry" label="所属行业" width="100" />
-        <el-table-column prop="region" label="所属地区" width="100" />
-        <el-table-column prop="externalRating" label="外部评级" width="100" />
-        <el-table-column prop="latestBreachSeverity" label="最新违约严重程度" width="150">
+        <el-table-column prop="name" label="客户名称" width="320" />
+        <el-table-column prop="industry" label="所属行业" width="160" />
+        <el-table-column prop="region" label="所属地区" width="120" />
+        <el-table-column prop="externalRating" label="外部评级" width="120" />
+        <el-table-column prop="latestBreachSeverity" label="最新违约严重程度" width="180">
           <template #default="scope">
             <el-tag
               :type="scope.row.latestBreachSeverity === 'HIGH' ? 'danger' : scope.row.latestBreachSeverity === 'MEDIUM' ? 'warning' : 'success'"
@@ -87,7 +87,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="totalBreachCount" label="违约次数" width="100" />
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="操作" width="280" fixed="right">
           <template #default="scope">
             <el-button type="primary" size="small" @click="showCustomerDetails(scope.row.id)">详情</el-button>
             <el-button size="small" @click="viewBreachRecords(scope.row.id)">违约记录</el-button>
