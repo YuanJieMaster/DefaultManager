@@ -40,8 +40,6 @@
             <el-sub-menu v-if="auth.role === 'ADMIN' || auth.role === 'RISK_REVIEWER'" index="/statistics">
               <template #title><el-icon><TrendCharts /></el-icon><span>统计分析</span></template>
               <el-menu-item index="/statistics/overview">概览统计</el-menu-item>
-              <el-menu-item index="/statistics/industry">行业分析</el-menu-item>
-              <el-menu-item index="/statistics/region">区域分析</el-menu-item>
             </el-sub-menu>
             
             <!-- 用户管理 - 只有ADMIN可以访问 -->

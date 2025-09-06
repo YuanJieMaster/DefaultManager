@@ -114,20 +114,8 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'overview',
         name: 'StatisticsOverview',
-        component: () => import('@/views/statistics/StatisticsOverview.vue'),
+        component: () => import('@/views/statistics/DefaultStatistics.vue'),
         meta: { title: '概览统计' }
-      },
-      {
-        path: 'industry',
-        name: 'IndustryAnalysis',
-        component: () => import('@/views/statistics/IndustryAnalysis.vue'),
-        meta: { title: '行业分析' }
-      },
-      {
-        path: 'region',
-        name: 'RegionAnalysis',
-        component: () => import('@/views/statistics/RegionAnalysis.vue'),
-        meta: { title: '区域分析' }
       }
     ]
   },
