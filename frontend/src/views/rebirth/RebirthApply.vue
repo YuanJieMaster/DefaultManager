@@ -97,16 +97,21 @@
           </el-select>
         </el-form-item>
 
-        <!-- 申请理由 -->
-        <el-form-item label="申请理由" prop="reason" required>
-          <el-input
-            v-model="formData.reason"
-            type="textarea"
-            rows="4"
-            placeholder="请详细说明客户申请重生的理由和依据"
-            class="textarea-animation"
-          />
-          <div class="char-count">{{ formData.reason.length }}/500</div>
+        <!-- 重生原因 -->
+        <el-form-item label="重生原因" prop="rebirthReasonId" required>
+          <el-select
+            v-model="formData.rebirthReasonId"
+            placeholder="请选择重生原因"
+            class="select-animation"
+            filterable
+          >
+            <el-option
+              v-for="reason in rebirthReasonOptions"
+              :key="reason.id"
+              :label="reason.reasonContent"
+              :value="reason.id"
+            />
+          </el-select>
         </el-form-item>
 
         <!-- 整改措施 -->
@@ -224,15 +229,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { ElMessage, ElLoading, ElForm, ElDialog, ElMessageBox } from 'element-plus'
 import { Help, Upload, Phone, Briefcase, Loading, DocumentCopy } from '@element-plus/icons-vue'
 import { customerApi } from '@/api/customer'
 import { breachApi } from '@/api/breach'
 import { rebirthApi } from '@/api/rebirth'
+import { rebirthReasonApi } from '@/api/rebirth-reason'
 import type { CustomerResponseDTO } from '@/types'
 import type { BreachRecordResponseDTO } from '@/types'
 import type { RebirthApplyDTO } from '@/types'
+import type { RebirthReasonResponseDTO } from '@/types'
 
 // 表单引用
 const formRef = ref<InstanceType<typeof ElForm>>()
@@ -240,6 +247,7 @@ const formRef = ref<InstanceType<typeof ElForm>>()
 // 加载状态
 const customerLoading = ref(false)
 const breachRecordsLoading = ref(false)
+const rebirthReasonLoading = ref(false)
 const submitting = ref(false)
 
 // 示例对话框
@@ -252,12 +260,15 @@ const selectedCustomer = ref<Partial<CustomerResponseDTO> | null>(null)
 // 违约记录选项
 const breachRecordOptions = ref<BreachRecordResponseDTO[]>([])
 
+// 重生原因选项
+const rebirthReasonOptions = ref<RebirthReasonResponseDTO[]>([])
+
 // 表单数据
 const formData = reactive<RebirthApplyDTO>({
   customerId: null,
   customerName: '',
   breachRecordIds: [],
-  reason: '',
+  rebirthReasonId: null,
   rectificationMeasures: '',
   expectedEffects: '',
   applyTime: new Date().toLocaleString('zh-CN', {
@@ -280,10 +291,8 @@ const formRules = reactive({
   breachRecordIds: [
     { required: true, message: '请选择违约记录', trigger: 'change' }
   ],
-  reason: [
-    { required: true, message: '请填写申请理由', trigger: 'blur' },
-    { min: 20, message: '申请理由至少20个字符', trigger: 'blur' },
-    { max: 500, message: '申请理由最多500个字符', trigger: 'blur' }
+  rebirthReasonId: [
+    { required: true, message: '请选择重生原因', trigger: 'change' }
   ],
   rectificationMeasures: [
     { max: 300, message: '整改措施最多300个字符', trigger: 'blur' }
@@ -292,6 +301,25 @@ const formRules = reactive({
     { max: 300, message: '预期效果最多300个字符', trigger: 'blur' }
   ]
 })
+
+// 组件挂载时加载重生原因列表
+onMounted(() => {
+  loadRebirthReasons()
+})
+
+// 加载重生原因列表
+const loadRebirthReasons = async () => {
+  rebirthReasonLoading.value = true
+  try {
+    const reasons = await rebirthReasonApi.getAllRebirthReasons()
+    rebirthReasonOptions.value = reasons.filter((reason: RebirthReasonResponseDTO) => reason.isEnabled)
+  } catch (error) {
+    ElMessage.error('加载重生原因失败')
+    console.error('加载重生原因失败:', error)
+  } finally {
+    rebirthReasonLoading.value = false
+  }
+}
 
 // 监听表单数据变化，添加自动保存逻辑（实际项目中可以实现）
 watch(
@@ -500,7 +528,7 @@ const submitForm = async () => {
       const submitData = {
         customerId: formData.customerId,
         breachId: formData.breachRecordIds[0], // 后端目前只支持单个违约记录
-        reason: formData.reason,
+        rebirthReasonId: formData.rebirthReasonId,
         applicantId: 1 // 实际项目中应从登录状态获取当前用户ID
       }
       

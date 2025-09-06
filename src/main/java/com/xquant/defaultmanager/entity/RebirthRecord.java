@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.xquant.defaultmanager.entity.RebirthReason;
 
 @Data
 @Entity
@@ -25,8 +26,9 @@ public class RebirthRecord {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
   
-    @Column(name = "reason", nullable = false, length = 500)
-    private String reason;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rebirth_reason_id", nullable = false)
+    private RebirthReason rebirthReason;
   
     @Column(name = "applicant_id", nullable = false)
     private Long applicantId;

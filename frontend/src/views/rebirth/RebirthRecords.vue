@@ -33,7 +33,7 @@
         <!-- 搜索框 -->
         <el-input
           v-model="searchKeyword"
-          placeholder="搜索客户名称或申请理由"
+          placeholder="搜索客户名称或重生原因"
           prefix-icon="Search"
           class="search-input"
           @keyup.enter="handleSearch"
@@ -117,16 +117,16 @@
             <el-link type="primary" @click="viewCustomerDetail(scope.row.customerId)">{{ scope.row.customerName }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="reason" label="申请理由">
+        <el-table-column prop="rebirthReasonContent" label="重生原因">
           <template #default="scope">
             <el-popover
               trigger="hover"
               placement="top"
-              :content="scope.row.reason"
+              :content="scope.row.rebirthReasonContent"
               width="400"
             >
               <template #reference>
-                <span class="reason-text">{{ truncateText(scope.row.reason, 50) }}</span>
+                <span class="reason-text">{{ truncateText(scope.row.rebirthReasonContent, 50) }}</span>
               </template>
             </el-popover>
           </template>
@@ -234,8 +234,8 @@
         <el-descriptions border column="1" class="review-descriptions">
           <el-descriptions-item label="申请ID">{{ currentRecord.id }}</el-descriptions-item>
           <el-descriptions-item label="客户名称">{{ currentRecord.customerName }}</el-descriptions-item>
-          <el-descriptions-item label="申请理由">
-            <div class="description-content">{{ currentRecord.reason }}</div>
+          <el-descriptions-item label="重生原因">
+            <div class="description-content">{{ currentRecord.rebirthReasonContent }}</div>
           </el-descriptions-item>
           <el-descriptions-item label="整改措施">
             <div class="description-content">{{ currentRecord.rectificationMeasures }}</div>
@@ -351,7 +351,7 @@ const fetchRebirthRecords = async () => {
       const keyword = searchKeyword.value.toLowerCase()
       filteredData = filteredData.filter(record => 
         record.customerName.toLowerCase().includes(keyword) || 
-        record.reason.toLowerCase().includes(keyword)
+        record.rebirthReasonContent.toLowerCase().includes(keyword)
       )
     }
     

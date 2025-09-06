@@ -32,7 +32,7 @@
         <!-- 搜索框 -->
         <el-input
           v-model="searchKeyword"
-          placeholder="搜索客户名称或申请理由"
+          placeholder="搜索客户名称或重生原因内容"
           prefix-icon="Search"
           class="search-input"
           @keyup.enter="handleSearch"
@@ -117,16 +117,16 @@
               <el-tag size="small">{{ industryMap[scope.row.industry] || scope.row.industry }}</el-tag>
             </template>
           </el-table-column>
-        <el-table-column prop="reason" label="申请理由">
+        <el-table-column prop="rebirthReasonContent" label="申请理由">
           <template #default="scope">
             <el-popover
               trigger="hover"
               placement="top"
-              :content="scope.row.reason"
+              :content="scope.row.rebirthReasonContent"
               width="400"
             >
               <template #reference>
-                <span class="reason-text">{{ truncateText(scope.row.reason, 50) }}</span>
+                <span class="reason-text">{{ truncateText(scope.row.rebirthReasonContent, 50) }}</span>
               </template>
             </el-popover>
           </template>
@@ -229,7 +229,7 @@
           <el-descriptions-item label="客户名称">{{ currentReview.customerName }}</el-descriptions-item>
           <el-descriptions-item label="客户行业">{{ currentReview && industryMap[currentReview.industry] ? industryMap[currentReview.industry] : (currentReview ? currentReview.industry : '') }}</el-descriptions-item>
           <el-descriptions-item label="申请理由">
-            <div class="description-content">{{ currentReview.reason }}</div>
+            <div class="description-content">{{ currentReview.rebirthReasonContent }}</div>
           </el-descriptions-item>
           <el-descriptions-item label="整改措施">
             <div class="description-content">{{ currentReview.rectificationMeasures }}</div>
@@ -290,7 +290,7 @@ export interface RebirthReviewResponseDTO {
   customerId: number
   customerName: string
   industry: string
-  reason: string
+  rebirthReasonContent: string
   breachRecordCount: number
   isUrgent: boolean
   applyTime: string
@@ -366,30 +366,30 @@ const fetchRebirthReviews = async () => {
     const response = await rebirthApi.getRebirthRecordsByStatus('PENDING')
     
     // 转换数据格式以适应前端表格
-    const formattedData = response.map(record => ({
-      id: record.id,
-      customerId: record.customerId,
-      customerName: record.customerName,
-      industry: 'TECH', // 暂时使用默认值，实际项目中应该从客户信息获取
-      reason: record.reason,
-      breachRecordCount: 1, // 暂时使用默认值，实际项目中应该调用API获取
-      isUrgent: false, // 暂时使用默认值，实际项目中应该根据申请时间判断
-      applyTime: record.createTime, // 假设后端返回的createTime格式已经符合前端要求
-      rectificationMeasures: record.rectificationMeasures || '',
-      expectedEffects: record.expectedEffects || '',
-      attachmentCount: 0 // 暂时使用默认值，实际项目中应该调用API获取
-    }))
+        const formattedData = response.map(record => ({
+          id: record.id,
+          customerId: record.customerId,
+          customerName: record.customerName,
+          industry: 'TECH', // 暂时使用默认值，实际项目中应该从客户信息获取
+          rebirthReasonContent: record.rebirthReasonContent, // 使用新的字段名称
+          breachRecordCount: 1, // 暂时使用默认值，实际项目中应该调用API获取
+          isUrgent: false, // 暂时使用默认值，实际项目中应该根据申请时间判断
+          applyTime: record.createTime, // 假设后端返回的createTime格式已经符合前端要求
+          rectificationMeasures: record.rectificationMeasures || '',
+          expectedEffects: record.expectedEffects || '',
+          attachmentCount: 0 // 暂时使用默认值，实际项目中应该调用API获取
+        }))
     
     // 根据筛选条件过滤数据
     let filteredData = [...formattedData]
     
     if (searchKeyword.value) {
-      const keyword = searchKeyword.value.toLowerCase()
-      filteredData = filteredData.filter(record => 
-        record.customerName.toLowerCase().includes(keyword) || 
-        record.reason.toLowerCase().includes(keyword)
-      )
-    }
+          const keyword = searchKeyword.value.toLowerCase()
+          filteredData = filteredData.filter(record => 
+            record.customerName.toLowerCase().includes(keyword) || 
+            record.rebirthReasonContent.toLowerCase().includes(keyword)
+          )
+        }
     
     if (industryFilter.value) {
       filteredData = filteredData.filter(record => record.industry === industryFilter.value)

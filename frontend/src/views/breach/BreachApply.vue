@@ -143,7 +143,7 @@ const breachForm = reactive<BreachRecordDTO>({
   customerId: 0,
   breachReasonId: 0,
   severity: 'MEDIUM',
-  applicantId: 1 // 假设当前用户ID为1
+  applicantId: 8 // 假设当前用户ID为1
 })
 
 // 违约原因列表

@@ -12,7 +12,9 @@ public class RebirthRecordResponseDTO {
     private Long breachId;
     private Long customerId;
     private String customerName;
-    private String reason;
+    private Long rebirthReasonId;
+    private String rebirthReasonContent;
+    private String reason; // 向后兼容
     private Long applicantId;
     private Long reviewerId;
     private ReviewStatus status;

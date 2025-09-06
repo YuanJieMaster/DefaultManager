@@ -34,7 +34,7 @@
       <el-table v-loading="loading" :data="breachRecordsData" style="width: 100%">
         <el-table-column prop="id" label="记录ID" width="80" />
         <el-table-column prop="customerName" label="客户名称" width="180" />
-        <el-table-column prop="reason" label="违约原因" min-width="200">
+        <el-table-column prop="breachReasonContent" label="违约原因" min-width="200">
           <template #default="scope">
             <el-popover
               trigger="hover"
@@ -42,9 +42,9 @@
               :width="400"
             >
               <template #reference>
-                <span>{{ truncateText(scope.row.reason, 50) }}</span>
+                <span>{{ truncateText(scope.row.breachReasonContent, 50) }}</span>
               </template>
-              <p>{{ scope.row.reason }}</p>
+              <p>{{ scope.row.breachReasonContent }}</p>
             </el-popover>
           </template>
         </el-table-column>
@@ -101,7 +101,7 @@
         <el-descriptions :column="1" border>
           <el-descriptions-item label="记录ID">{{ currentBreachRecord.id }}</el-descriptions-item>
           <el-descriptions-item label="客户名称">{{ currentBreachRecord.customerName }}</el-descriptions-item>
-          <el-descriptions-item label="违约原因">{{ currentBreachRecord.reason }}</el-descriptions-item>
+          <el-descriptions-item label="违约原因">{{ currentBreachRecord.breachReasonContent }}</el-descriptions-item>
           <el-descriptions-item label="严重程度">
             <el-tag
               :type="currentBreachRecord.severity === 'HIGH' ? 'danger' : currentBreachRecord.severity === 'MEDIUM' ? 'warning' : 'success'"

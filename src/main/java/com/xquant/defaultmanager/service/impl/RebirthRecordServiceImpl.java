@@ -5,9 +5,11 @@ import com.xquant.defaultmanager.dto.RebirthRecordResponseDTO;
 import com.xquant.defaultmanager.entity.BreachRecord;
 import com.xquant.defaultmanager.entity.Customer;
 import com.xquant.defaultmanager.entity.RebirthRecord;
+import com.xquant.defaultmanager.entity.RebirthReason;
 import com.xquant.defaultmanager.repository.BreachRecordRepository;
 import com.xquant.defaultmanager.repository.CustomerRepository;
 import com.xquant.defaultmanager.repository.RebirthRecordRepository;
+import com.xquant.defaultmanager.repository.RebirthReasonRepository;
 import com.xquant.defaultmanager.service.RebirthRecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class RebirthRecordServiceImpl implements RebirthRecordService {
     private final RebirthRecordRepository rebirthRecordRepository;
     private final BreachRecordRepository breachRecordRepository;
     private final CustomerRepository customerRepository;
+    private final RebirthReasonRepository rebirthReasonRepository;
     
     @Override
     public RebirthRecordResponseDTO createRebirthRecord(RebirthRecordDTO rebirthRecordDTO) {
@@ -41,10 +44,14 @@ public class RebirthRecordServiceImpl implements RebirthRecordService {
             throw new RuntimeException("Customer cannot apply for rebirth at this time");
         }
         
+        // 验证重生原因是否存在
+        RebirthReason rebirthReason = rebirthReasonRepository.findById(rebirthRecordDTO.getRebirthReasonId())
+                .orElseThrow(() -> new RuntimeException("Rebirth reason not found"));
+        
         RebirthRecord rebirthRecord = new RebirthRecord();
         rebirthRecord.setBreachRecord(breachRecord);
         rebirthRecord.setCustomer(customer);
-        rebirthRecord.setReason(rebirthRecordDTO.getReason());
+        rebirthRecord.setRebirthReason(rebirthReason);
         rebirthRecord.setApplicantId(rebirthRecordDTO.getApplicantId());
         rebirthRecord.setStatus(RebirthRecord.ReviewStatus.PENDING);
         rebirthRecord.setCreateTime(LocalDateTime.now());
@@ -137,7 +144,9 @@ public class RebirthRecordServiceImpl implements RebirthRecordService {
         dto.setBreachId(rebirthRecord.getBreachRecord().getId());
         dto.setCustomerId(rebirthRecord.getCustomer().getId());
         dto.setCustomerName(rebirthRecord.getCustomer().getName());
-        dto.setReason(rebirthRecord.getReason());
+        dto.setRebirthReasonId(rebirthRecord.getRebirthReason().getId());
+        dto.setRebirthReasonContent(rebirthRecord.getRebirthReason().getReasonContent());
+        dto.setReason(rebirthRecord.getRebirthReason().getReasonContent()); // 向后兼容
         dto.setApplicantId(rebirthRecord.getApplicantId());
         dto.setReviewerId(rebirthRecord.getReviewerId());
         dto.setStatus(rebirthRecord.getStatus());

@@ -7,6 +7,6 @@ public class RebirthRecordDTO {
     
     private Long breachId;
     private Long customerId;
-    private String reason;
+    private Long rebirthReasonId;
     private Long applicantId;
 }

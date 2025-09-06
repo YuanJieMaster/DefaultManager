@@ -58,7 +58,7 @@ export interface BreachRecordResponseDTO {
 export interface RebirthRecordDTO {
   breachId: number
   customerId: number
-  reason: string
+  rebirthReasonId: number
   applicantId: number
 }
 
@@ -67,7 +67,8 @@ export interface RebirthRecordResponseDTO {
   breachId: number
   customerId: number
   customerName: string
-  reason: string
+  rebirthReasonId: number
+  rebirthReasonContent: string
   applicantId: number
   reviewerId?: number
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
@@ -80,7 +81,7 @@ export interface RebirthApplyDTO {
   customerId: number | null
   customerName: string
   breachRecordIds: number[]
-  reason: string
+  rebirthReasonId: number | null
   rectificationMeasures: string
   expectedEffects: string
   applyTime: string
@@ -99,16 +100,6 @@ export interface User {
 }
 
 // 重生申请相关类型
-export interface RebirthApplyDTO {
-  customerId: number | null
-  customerName: string
-  breachRecordIds: number[]
-  reason: string
-  rectificationMeasures: string
-  expectedEffects: string
-  applyTime: string
-  attachments: string[] // 或者根据实际情况调整为 File[] 或其他类型
-}
 
 export interface RebirthApplyResponseDTO {
   id: number
@@ -116,7 +107,8 @@ export interface RebirthApplyResponseDTO {
   customerName: string
   breachRecordIds: number[]
   breachRecordReasons: string[]
-  reason: string
+  rebirthReasonId: number
+  rebirthReasonContent: string
   rectificationMeasures: string
   expectedEffects: string
   applyTime: string

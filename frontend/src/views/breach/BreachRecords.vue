@@ -72,16 +72,16 @@
             <el-link type="primary" @click="viewCustomerDetail(scope.row.customerId)">{{ scope.row.customerName }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="reason" label="违约原因">
+        <el-table-column prop="breachReasonContent" label="违约原因">
           <template #default="scope">
             <el-popover
               trigger="hover"
               placement="top"
-              :content="scope.row.reason"
+              :content="scope.row.breachReasonContent"
               width="400"
             >
               <template #reference>
-                <span class="reason-text">{{ truncateText(scope.row.reason, 50) }}</span>
+                <span class="reason-text">{{ truncateText(scope.row.breachReasonContent, 50) }}</span>
               </template>
             </el-popover>
           </template>
@@ -214,7 +214,7 @@ const fetchBreachRecords = async () => {
       const keyword = searchKeyword.value.toLowerCase()
       filteredData = filteredData.filter(record => 
         (record.customerName && record.customerName.toLowerCase().includes(keyword)) || 
-        (record.reason && record.reason.toLowerCase().includes(keyword))
+        (record.breachReasonContent && record.breachReasonContent.toLowerCase().includes(keyword))
       )
     }
     
