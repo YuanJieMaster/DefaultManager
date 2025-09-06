@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
+import { hasRoutePermission } from '@/utils/permission'
+import { ElMessage } from 'element-plus'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -173,8 +175,15 @@ router.beforeEach((to, _from, next) => {
     return next({ path: '/login', query: { redirect: to.fullPath } })
   }
   
-  // 已登录用户访问受保护路由，允许通过
-  next()
+  // 已登录用户访问受保护路由，检查权限
+  if (hasRoutePermission(to.path)) {
+    // 有权限，允许访问
+    next()
+  } else {
+    // 无权限，提示用户并跳转到仪表盘
+    ElMessage.warning('您没有权限访问此页面')
+    next('/dashboard')
+  }
 })
 
 export default router

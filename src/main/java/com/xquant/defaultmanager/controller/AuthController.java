@@ -5,6 +5,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,10 +48,17 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 确保创建会话（基于 Session 维持登录）
         httpRequest.getSession(true);
-        // 返回登录成功响应
+        // 获取用户角色信息
+        String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(auth -> auth.getAuthority().replace("ROLE_", ""))
+                .orElse("USER");
+        
+        // 返回登录成功响应，包含角色信息
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "username", request.getUsername()
+                "username", request.getUsername(),
+                "role", role
         ));
     }
 

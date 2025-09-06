@@ -12,7 +12,7 @@
         <div class="login-header">
           <div class="logo-container">
             <div class="logo-icon">
-              <ShieldCheckBold class="logo-svg" />
+              <Finished class="logo-svg" />
             </div>
           </div>
           <h1 class="system-title">违约管理系统</h1>
@@ -89,8 +89,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { User, Lock, ShieldCheckBold } from '@element-plus/icons-vue'
-import { loginJson, loginForm, type LoginPayload } from '@/api/auth'
+import { User, Lock, Finished } from '@element-plus/icons-vue'
+import { login, type LoginPayload } from '@/api/auth'
 import { useAuthStore } from '@/store/auth'
 
 const router = useRouter()
@@ -115,7 +115,7 @@ const rules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+    { min: 5, max: 20, message: '密码长度在 5 到 20 个字符', trigger: 'blur' }
   ]
 }
 
@@ -127,16 +127,11 @@ const onSubmit = async () => {
     
     loading.value = true
     
-    // 优先尝试 JSON 登录（若后端未提供可自动回退到表单登录）
-    let result
-    try {
-      result = await loginJson(form.value)
-    } catch (_) {
-      result = await loginForm(form.value)
-    }
+    // 调用登录API
+    const result = await login(form.value)
     
-    // 存储登录信息
-    auth.setLogin(result.token || null, result.username || form.value.username)
+    // 存储登录信息（包含角色）
+    auth.setLogin(result.username || form.value.username, result.role)
     
     // 显示成功消息并跳转
     ElMessage.success('登录成功，正在跳转...')

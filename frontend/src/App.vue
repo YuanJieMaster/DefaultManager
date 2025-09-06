@@ -8,37 +8,50 @@
         <el-aside width="250px" class="sidebar">
           <div class="logo"><h2>违约管理系统</h2></div>
           <el-menu :default-active="$route.path" class="sidebar-menu" router background-color="#304156" text-color="#bfcbd9" active-text-color="#409EFF">
-            <el-menu-item router index="/dashboard"><el-icon><DataBoard /></el-icon><span>仪表盘</span></el-menu-item>
+            <!-- 仪表盘 - 只有ADMIN可以访问 -->
+            <el-menu-item v-if="auth.role === 'ADMIN'" router index="/dashboard"><el-icon><DataBoard /></el-icon><span>仪表盘</span></el-menu-item>
+            
+            <!-- 客户管理 - 所有角色都可以访问 -->
             <el-sub-menu index="/customer">
               <template #title><el-icon><User /></el-icon><span>客户管理</span></template>
               <el-menu-item index="/customer/list">客户列表</el-menu-item>
               <el-menu-item index="/customer/breached">违约客户</el-menu-item>
             </el-sub-menu>
+            
+            <!-- 违约管理 -->
             <el-sub-menu index="/breach">
               <template #title><el-icon><Warning /></el-icon><span>违约管理</span></template>
               <el-menu-item index="/breach/records">违约记录</el-menu-item>
-              <el-menu-item index="/breach/apply">违约申请</el-menu-item>
-              <el-menu-item index="/breach/review">违约审核</el-menu-item>
-              <el-menu-item index="/breach/reasons">违约原因维护</el-menu-item>
+              <el-menu-item v-if="auth.role === 'ADMIN' || auth.role === 'RISK_CONTROL'" index="/breach/apply">违约申请</el-menu-item>
+              <el-menu-item v-if="auth.role === 'ADMIN' || auth.role === 'RISK_REVIEWER'" index="/breach/review">违约审核</el-menu-item>
+              <el-menu-item v-if="auth.role === 'ADMIN'" index="/breach/reasons">违约原因维护</el-menu-item>
             </el-sub-menu>
+            
+            <!-- 重生管理 -->
             <el-sub-menu index="/rebirth">
               <template #title><el-icon><Refresh /></el-icon><span>重生管理</span></template>
               <el-menu-item index="/rebirth/records">重生记录</el-menu-item>
-              <el-menu-item index="/rebirth/apply">重生申请</el-menu-item>
-              <el-menu-item index="/rebirth/review">重生审核</el-menu-item>
-              <el-menu-item index="/rebirth/reasons">重生原因维护</el-menu-item>
+              <el-menu-item v-if="auth.role === 'ADMIN' || auth.role === 'RISK_CONTROL'" index="/rebirth/apply">重生申请</el-menu-item>
+              <el-menu-item v-if="auth.role === 'ADMIN' || auth.role === 'RISK_REVIEWER'" index="/rebirth/review">重生审核</el-menu-item>
+              <el-menu-item v-if="auth.role === 'ADMIN'" index="/rebirth/reasons">重生原因维护</el-menu-item>
             </el-sub-menu>
-            <el-sub-menu index="/statistics">
+            
+            <!-- 统计分析 - 只有ADMIN和RISK_REVIEWER可以访问 -->
+            <el-sub-menu v-if="auth.role === 'ADMIN' || auth.role === 'RISK_REVIEWER'" index="/statistics">
               <template #title><el-icon><TrendCharts /></el-icon><span>统计分析</span></template>
               <el-menu-item index="/statistics/overview">概览统计</el-menu-item>
               <el-menu-item index="/statistics/industry">行业分析</el-menu-item>
               <el-menu-item index="/statistics/region">区域分析</el-menu-item>
             </el-sub-menu>
-            <el-sub-menu index="/user">
+            
+            <!-- 用户管理 - 只有ADMIN可以访问 -->
+            <el-sub-menu v-if="auth.role === 'ADMIN'" index="/user">
               <template #title><el-icon><UserFilled /></el-icon><span>用户管理</span></template>
               <el-menu-item index="/user/list">用户列表</el-menu-item>
             </el-sub-menu>
-            <el-menu-item index="/system"><el-icon><Setting /></el-icon><span>系统设置</span></el-menu-item>
+            
+            <!-- 系统设置 - 只有ADMIN可以访问 -->
+            <el-menu-item v-if="auth.role === 'ADMIN'" index="/system"><el-icon><Setting /></el-icon><span>系统设置</span></el-menu-item>
           </el-menu>
         </el-aside>
         <el-container>
@@ -52,7 +65,7 @@
               <el-dropdown>
                 <span class="user-info">
                   <el-avatar :size="32" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
-                  <span class="username">管理员</span>
+                  <span class="username">{{ auth.username }}</span>
                 </span>
                 <template #dropdown>
                   <el-dropdown-menu>
@@ -76,7 +89,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { DataBoard, User, Warning, Refresh, TrendCharts, Setting } from '@element-plus/icons-vue'
+import { DataBoard, User, Warning, Refresh, TrendCharts, Setting, UserFilled } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/store/auth'
 
 const auth = useAuthStore()

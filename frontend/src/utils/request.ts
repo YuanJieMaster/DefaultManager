@@ -24,11 +24,9 @@ const request: CustomAxiosInstance = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
   (config: AxiosRequestConfig) => {
-    // 可以在这里添加 token 等认证信息
-    const token = localStorage.getItem('token')
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+    // 基于Session的认证，不需要手动添加token
+    // 确保请求包含credentials，支持Cookie传输
+    config.withCredentials = true
     return config
   },
   (error) => {

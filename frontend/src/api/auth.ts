@@ -10,35 +10,26 @@ export interface LoginPayload {
 
 // 登录响应结果接口
 export interface LoginResult {
-  token?: string // JWT令牌（可选）
-  username?: string // 用户名
+  success: boolean // 登录是否成功
+  username: string // 用户名
+  role: string // 用户角色 (ADMIN, RISK_REVIEWER, RISK_CONTROL)
 }
 
-// JSON格式登录（适用于返回JWT令牌的认证方式）
-export const loginJson = (data: LoginPayload) => {
-  return request.post<LoginResult>('/auth/login', data)
-}
-
-// 表单格式登录（适用于Spring Security基于Session的认证方式）
-export const loginForm = async (data: LoginPayload) => {
-  // 构建表单数据
-  const form = new URLSearchParams()
-  form.append('username', data.username)
-  form.append('password', data.password)
-  
-  // 使用fetch API发送表单数据，包含credentials确保Cookie被正确处理
-  const res = await fetch('/api/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: form.toString(),
-    credentials: 'include' // 包含Cookie，支持Session认证
-  })
-  
-  // 处理错误响应
-  if (!res.ok) {
-    throw new Error('登录失败')
+/**
+ * 用户登录接口
+ * 实际项目中基于Session的认证方式
+ * 前端发送JSON格式数据，后端使用Spring Security认证
+ */
+export const login = async (data: LoginPayload) => {
+  try {
+    // 发送登录请求
+    const response = await request.post<LoginResult>('/auth/login', data)
+    
+    // 返回登录结果
+    return response
+  } catch (error) {
+    // 处理登录错误
+    console.error('登录请求失败:', error)
+    throw new Error('登录失败，请检查用户名和密码')
   }
-  
-  // 表单登录通常通过Session维护状态，返回用户名作为占位
-  return { username: data.username } as LoginResult
 }
