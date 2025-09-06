@@ -42,13 +42,19 @@
         <!-- 违约详情 -->
         <div class="form-section">
           <h4>违约详情</h4>
-          <el-form-item label="违约原因" prop="reason">
-            <el-input
-              v-model="breachForm.reason"
-              type="textarea"
-              :rows="4"
-              placeholder="请详细描述客户违约的具体原因和情况"
-            />
+          <el-form-item label="违约原因" prop="breachReasonId">
+            <el-select
+              v-model="breachForm.breachReasonId"
+              placeholder="请选择违约原因"
+              clearable
+            >
+              <el-option
+                v-for="reason in breachReasons"
+                :key="reason.id"
+                :label="reason.reasonContent"
+                :value="reason.id"
+              />
+            </el-select>
           </el-form-item>
           
           <el-form-item label="严重程度" prop="severity">
@@ -120,11 +126,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { breachApi } from '@/api/breach'
 import { customerApi } from '@/api/customer'
+import { breachReasonApi } from '@/api/breach-reason'
 import type { BreachRecordDTO, CustomerResponseDTO } from '@/types'
 
 const router = useRouter()
@@ -134,18 +141,18 @@ const breachFormRef = ref()
 const uploadRef = ref()
 const breachForm = reactive<BreachRecordDTO>({
   customerId: 0,
-  reason: '',
+  breachReasonId: 0,
   severity: 'MEDIUM',
   applicantId: 1 // 假设当前用户ID为1
 })
 
+// 违约原因列表
+const breachReasons = ref<any[]>([])
+
 // 表单验证规则
 const breachRules = {
   customerId: [{ required: true, message: '请选择客户', trigger: 'blur' }],
-  reason: [
-    { required: true, message: '请输入违约原因', trigger: 'blur' },
-    { min: 10, message: '违约原因至少10个字符', trigger: 'blur' }
-  ],
+  breachReasonId: [{ required: true, message: '请选择违约原因', trigger: 'change' }],
   severity: [{ required: true, message: '请选择严重程度', trigger: 'change' }]
 }
 
@@ -188,6 +195,23 @@ const remoteSearchCustomers = async (query: string) => {
     ElMessage.error('搜索客户失败')
   } finally {
     searchLoading.value = false
+  }
+}
+
+// 组件挂载时加载违约原因列表
+onMounted(() => {
+  loadBreachReasons()
+})
+
+// 加载违约原因列表
+const loadBreachReasons = async () => {
+  try {
+    // 调用API获取所有启用的违约原因
+    const reasons = await breachReasonApi.getEnabledBreachReasons()
+    breachReasons.value = reasons
+  } catch (error) {
+    ElMessage.error('获取违约原因列表失败')
+    console.error('加载违约原因失败:', error)
   }
 }
 
@@ -273,7 +297,7 @@ const resetForm = () => {
 
 // 取消申请
 const cancelApply = () => {
-  if (breachForm.customerId || breachForm.reason) {
+  if (breachForm.customerId || breachForm.breachReasonId) {
     ElMessageBox.confirm(
       '确定要取消当前编辑的内容吗？未保存的信息将丢失。',
       '取消确认',

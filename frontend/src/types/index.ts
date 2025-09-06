@@ -34,7 +34,7 @@ export interface CustomerResponseDTO extends CustomerDTO {
 // 违约记录相关类型
 export interface BreachRecordDTO {
   customerId: number
-  reason: string
+  breachReasonId: number
   severity: 'HIGH' | 'MEDIUM' | 'LOW'
   applicantId: number
 }
@@ -43,7 +43,9 @@ export interface BreachRecordResponseDTO {
   id: number
   customerId: number
   customerName: string
-  reason: string
+  breachReasonId: number
+  breachReasonContent: string
+  reason: string // 为了向后兼容保留的字段
   severity: 'HIGH' | 'MEDIUM' | 'LOW'
   applicantId: number
   reviewerId?: number

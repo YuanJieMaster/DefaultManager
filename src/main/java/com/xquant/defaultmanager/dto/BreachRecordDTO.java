@@ -7,7 +7,7 @@ import com.xquant.defaultmanager.entity.BreachRecord.Severity;
 public class BreachRecordDTO {
     
     private Long customerId;
-    private String reason;
+    private Long breachReasonId;
     private Severity severity;
     private Long applicantId;
 }

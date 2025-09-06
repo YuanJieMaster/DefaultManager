@@ -34,6 +34,6 @@ export const breachReasonApi = {
 
   // 切换违约原因启用状态
   toggleBreachReasonStatus(id: number) {
-    return request.put<BreachReasonResponseDTO>(`/breach-reasons/${id}/toggle-status`)
+    return request.patch<BreachReasonResponseDTO>(`/breach-reasons/${id}/toggle-status`)
   }
 }

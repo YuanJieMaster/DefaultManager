@@ -7,6 +7,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.xquant.defaultmanager.entity.BreachReason;
+
 @Data
 @Entity
 @Table(name = "breach_record")
@@ -21,8 +23,9 @@ public class BreachRecord {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
   
-    @Column(name = "reason", nullable = false, length = 500)
-    private String reason;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "breach_reason_id")
+    private BreachReason breachReason;
   
     @Enumerated(EnumType.STRING)
     @Column(name = "severity", nullable = false)

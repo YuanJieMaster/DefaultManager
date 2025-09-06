@@ -3,8 +3,10 @@ package com.xquant.defaultmanager.service.impl;
 import com.xquant.defaultmanager.dto.BreachRecordDTO;
 import com.xquant.defaultmanager.dto.BreachRecordResponseDTO;
 import com.xquant.defaultmanager.entity.BreachRecord;
+import com.xquant.defaultmanager.entity.BreachReason;
 import com.xquant.defaultmanager.entity.Customer;
 import com.xquant.defaultmanager.repository.BreachRecordRepository;
+import com.xquant.defaultmanager.repository.BreachReasonRepository;
 import com.xquant.defaultmanager.repository.CustomerRepository;
 import com.xquant.defaultmanager.service.BreachRecordService;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +24,19 @@ public class BreachRecordServiceImpl implements BreachRecordService {
     
     private final BreachRecordRepository breachRecordRepository;
     private final CustomerRepository customerRepository;
+    private final BreachReasonRepository breachReasonRepository;
     
     @Override
     public BreachRecordResponseDTO createBreachRecord(BreachRecordDTO breachRecordDTO) {
         Customer customer = customerRepository.findById(breachRecordDTO.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
         
+        BreachReason breachReason = breachReasonRepository.findById(breachRecordDTO.getBreachReasonId())
+                .orElseThrow(() -> new RuntimeException("Breach reason not found"));
+        
         BreachRecord breachRecord = new BreachRecord();
         breachRecord.setCustomer(customer);
-        breachRecord.setReason(breachRecordDTO.getReason());
+        breachRecord.setBreachReason(breachReason);
         breachRecord.setSeverity(breachRecordDTO.getSeverity());
         breachRecord.setApplicantId(breachRecordDTO.getApplicantId());
         breachRecord.setStatus(BreachRecord.ReviewStatus.PENDING);
@@ -105,7 +111,11 @@ public class BreachRecordServiceImpl implements BreachRecordService {
         dto.setId(breachRecord.getId());
         dto.setCustomerId(breachRecord.getCustomer().getId());
         dto.setCustomerName(breachRecord.getCustomer().getName());
-        dto.setReason(breachRecord.getReason());
+        if (breachRecord.getBreachReason() != null) {
+            dto.setBreachReasonId(breachRecord.getBreachReason().getId());
+            dto.setBreachReasonContent(breachRecord.getBreachReason().getReasonContent());
+            dto.setReason(breachRecord.getBreachReason().getReasonContent()); // 保持向后兼容
+        }
         dto.setSeverity(breachRecord.getSeverity());
         dto.setApplicantId(breachRecord.getApplicantId());
         dto.setReviewerId(breachRecord.getReviewerId());
