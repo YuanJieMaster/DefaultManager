@@ -12,7 +12,7 @@
         <!-- 搜索框 -->
         <el-input
           v-model="searchKeyword"
-          placeholder="搜索客户名称、联系人或电话"
+          placeholder="搜索客户名称"
           :prefix-icon="Search"
           class="search-input"
           @keyup.enter="handleSearch"
@@ -65,23 +65,21 @@
             <el-link type="primary" @click="viewCustomerDetail(scope.row.id)">{{ scope.row.name }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="contactPerson" label="联系人" width="120" />
-        <el-table-column prop="phone" label="联系电话" width="150" />
         <el-table-column prop="industry" label="所属行业" width="100" align="center">
           <template #default="scope">
             <el-tag>{{ getIndustryLabel(scope.row.industry) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" width="100" align="center">
+        <el-table-column prop="region" label="地区" width="100" align="center" />
+        <el-table-column prop="externalRating" label="评级" width="100" align="center" />
+        <el-table-column prop="isBreached" label="是否违约" width="100" align="center">
           <template #default="scope">
-            <el-tag type="success" v-if="scope.row.status === 'NORMAL'">正常</el-tag>
-            <el-tag type="warning" v-else-if="scope.row.status === 'WARNING'">预警</el-tag>
-            <el-tag type="danger" v-else-if="scope.row.status === 'BLOCKED'">冻结</el-tag>
+            <el-tag :type="scope.row.isBreached ? 'danger' : 'success'">
+              {{ scope.row.isBreached ? '是' : '否' }}
+            </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="breachCount" label="违约次数" width="100" align="center" />
         <el-table-column prop="createTime" label="创建时间" width="180" align="center" />
-        <el-table-column prop="updateTime" label="更新时间" width="180" align="center" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="scope">
             <el-button type="text" @click="viewCustomerDetail(scope.row.id)">查看</el-button>
@@ -129,6 +127,10 @@
       <div class="stat-item">
         <span class="stat-label">冻结：</span>
         <span class="stat-value blocked">{{ stats.blockedCustomers }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">已违约：</span>
+        <span class="stat-value breached">{{ stats.breachedCustomers }}</span>
       </div>
     </div>
 
@@ -218,7 +220,8 @@ const stats = reactive({
   totalCustomers: 0,
   normalCustomers: 0,
   warningCustomers: 0,
-  blockedCustomers: 0
+  blockedCustomers: 0,
+  breachedCustomers: 0
 })
 
 // 客户数据
@@ -275,9 +278,7 @@ const fetchCustomers = async () => {
     if (searchKeyword.value) {
       const keyword = searchKeyword.value.toLowerCase()
       filteredData = filteredData.filter(customer => 
-        customer.name.toLowerCase().includes(keyword) || 
-        customer.contactPerson.toLowerCase().includes(keyword) ||
-        customer.phone.includes(keyword)
+        customer.name.toLowerCase().includes(keyword)
       )
     }
     
@@ -304,6 +305,7 @@ const fetchCustomers = async () => {
     stats.normalCustomers = filteredData.filter(c => c.status === 'NORMAL').length
     stats.warningCustomers = filteredData.filter(c => c.status === 'WARNING').length
     stats.blockedCustomers = filteredData.filter(c => c.status === 'BLOCKED').length
+    stats.breachedCustomers = filteredData.filter(c => c.isBreached).length
   } catch (error) {
     ElMessage.error('获取客户列表失败')
     console.error('获取客户列表失败:', error)
@@ -543,6 +545,10 @@ onMounted(() => {
 }
 
 .stat-value.blocked {
+  color: #f56c6c;
+}
+
+.stat-value.breached {
   color: #f56c6c;
 }
 

@@ -87,8 +87,6 @@
           </template>
         </el-table-column>
         <el-table-column prop="totalBreachCount" label="违约次数" width="100" />
-        <el-table-column prop="firstBreachTime" label="首次违约时间" width="180" />
-        <el-table-column prop="latestBreachTime" label="最新违约时间" width="180" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="scope">
             <el-button type="primary" size="small" @click="showCustomerDetails(scope.row.id)">详情</el-button>
